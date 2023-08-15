@@ -1,8 +1,10 @@
 package lexer
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
 	"unicode"
 )
 
@@ -21,6 +23,33 @@ func PrintTokens() {
 	for i := range tokens {
 		fmt.Println(tokens[i].name, tokens[i].regex)
 	}
+}
+
+var file *os.File
+
+func OpenFile(fileName string) error {
+	var err error = nil
+	file, err = os.Open(fileName)
+
+	if err != nil {
+		err = errors.New(fmt.Sprintf("Błąd otwierania pliku o nazwie: %v!", fileName))
+	}
+
+	return err
+}
+
+// Prints file to test whether is has been properly read
+func TestPrintFile() {
+	reader := bufio.NewReader(file)
+
+	var err error = nil
+	var b byte = 0
+
+	for err == nil {
+		b, err = reader.ReadByte()
+		fmt.Printf("%c", b)
+	}
+
 }
 
 func Init() error {

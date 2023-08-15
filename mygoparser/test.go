@@ -19,4 +19,10 @@ func main() {
 		fmt.Println(err)
 	}
 
+	err = lexer.OpenFile("ala.txt")
+
+	if err == nil {
+		lexer.TestPrintFile()
+	}
+
 }
