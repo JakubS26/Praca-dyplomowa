@@ -1,0 +1,15 @@
+int main() {
+
+	int x = 36;
+	int y = 47;
+	
+	if(x > y) {
+		x += y;
+		y--;	
+	} else {
+		x = y - 353;
+	}
+
+	return x*y;	
+
+}
