@@ -10,15 +10,39 @@ import (
 	"unicode"
 )
 
-var S Stack[int]
-
 //Terminale oraz nietermiale będą reprezentowane licznbami naturnalymi
 //(np. 0-10 terminale (te same co w lekserze) 11-14 nieterminale)
+
+type Object struct {
+	id           int
+	IntegerValue int
+	StringValue  string
+}
+
+func (o Object) GetIntegerValue() int {
+	return o.IntegerValue
+}
+
+func (o Object) GetStringValue() string {
+	return o.StringValue
+}
+
+func (o *Object) SetIntegerValue(i int) {
+	o.IntegerValue = i
+}
+
+func (o *Object) SetStringValue(s string) {
+	o.StringValue = s
+}
 
 type ParserRule struct {
 	leftHandSide  int
 	rightHandSide []int
+	action        func([]Object)
 }
+
+var S Stack[int]
+var ActionS Stack[Object]
 
 // Liczba terminali i nieterminali gramatyki
 var teminals int = 5
@@ -49,7 +73,9 @@ func checkNonterminalName(s string) bool {
 
 }
 
-func ToParserRule(s string, tokenNames map[string]int, nonTerminalNames map[string]int) (ParserRule, error) {
+var nonTerminalNames map[string]int = make(map[string]int)
+
+func toParserRule(s string, tokenNames map[string]int, action func([]Object)) (ParserRule, error) {
 
 	splitStrings := strings.Split(s, " ")
 	splitStringsClear := make([]string, 0, 5)
@@ -128,22 +154,35 @@ func ToParserRule(s string, tokenNames map[string]int, nonTerminalNames map[stri
 
 	}
 
-	return ParserRule{leftHandSide, rightHandSide}, nil
+	return ParserRule{leftHandSide, rightHandSide, action}, nil
 }
 
-var rules []ParserRule = []ParserRule{
-	//E -> E + T
-	{6, []int{6, 1, 7}},
-	//E -> T
-	{6, []int{7}},
-	//T -> T * F
-	{7, []int{7, 2, 8}},
-	//T -> F
-	{7, []int{8}},
-	//F -> (E)
-	{8, []int{3, 6, 4}},
-	//F -> id
-	{8, []int{0}},
+// var rules []ParserRule = []ParserRule{
+// 	//E -> E + T
+// 	{6, []int{6, 1, 7}},
+// 	//E -> T
+// 	{6, []int{7}},
+// 	//T -> T * F
+// 	{7, []int{7, 2, 8}},
+// 	//T -> F
+// 	{7, []int{8}},
+// 	//F -> (E)
+// 	{8, []int{3, 6, 4}},
+// 	//F -> id
+// 	{8, []int{0}},
+// }
+
+var rules []ParserRule
+
+func AddParserRule(s string, action func([]Object)) error {
+
+	result, err := toParserRule(s, lexer.GetTokenNames(), action)
+
+	if err == nil {
+		rules = append(rules, result)
+	}
+
+	return err
 }
 
 // Tabela parsowania z książki (do testów)
@@ -198,6 +237,63 @@ func Parse() {
 			fmt.Println("Wykonano redukcję: ", parsingTable[s][a])
 
 		} else if string(parsingTable[s][a][0]) == "a" {
+			fmt.Println("Parsowanie zakończone")
+			break
+		}
+
+	}
+}
+
+func ParseWithSemanticActions() {
+	//Pobieramy pierwszy token
+	tok, a, _ := lexer.NextTokenWithId()
+
+	//Na stosie stan początkowy
+	ActionS.Push(Object{0, 0, ""})
+
+	for true {
+
+		s, _ := ActionS.Peek()
+
+		if parsingTable[s.id][a] == "" {
+			fmt.Println("Syntax error!")
+			os.Exit(1)
+		} else if string(parsingTable[s.id][a][0]) == "s" {
+
+			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])
+			ActionS.Push(Object{t, 0, tok.GetMatchedText()})
+			//fmt.Println(t, tok.GetMatchedText())
+			fmt.Println("Wykonano przesunięcie: ", parsingTable[s.id][a])
+			tok, a, _ = lexer.NextTokenWithId()
+
+		} else if string(parsingTable[s.id][a][0]) == "r" {
+
+			n, _ := strconv.Atoi(parsingTable[s.id][a][1:])
+			symbolsToPop := len(rules[n-1].rightHandSide)
+
+			semanticValues := make([]Object, 0, symbolsToPop+1)
+			semanticValues = append(semanticValues, Object{})
+			semanticValues = append(semanticValues, ActionS.TopSubStack(symbolsToPop)...)
+
+			//fmt.Println(semanticValues)
+
+			rules[n-1].action(semanticValues)
+
+			//fmt.Println(semanticValues)
+
+			for i := 1; i <= symbolsToPop; i++ {
+				ActionS.Pop()
+			}
+
+			t, _ := ActionS.Peek()
+			A := rules[n-1].leftHandSide
+			gotoSymbol, _ := strconv.Atoi(parsingTable[t.id][A])
+			ActionS.Push(Object{gotoSymbol, semanticValues[0].IntegerValue, semanticValues[0].StringValue})
+			//ActionS.Push(Object{gotoSymbol, 0, ""})
+
+			fmt.Println("Wykonano redukcję: ", parsingTable[s.id][a])
+
+		} else if string(parsingTable[s.id][a][0]) == "a" {
 			fmt.Println("Parsowanie zakończone")
 			break
 		}

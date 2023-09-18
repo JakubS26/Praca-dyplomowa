@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"goparser/lexer"
 	"goparser/parser"
+	"strconv"
 )
+
+type T = []parser.Object
 
 func main() {
 
@@ -45,43 +48,31 @@ func main() {
 
 	/***********************************************************/
 
-	lexer.AddTokenDefinition("ID", `[a-zA-Z][a-zA-Z0-9]*`)
+	lexer.AddTokenDefinition("NUM", `[0-9]+`)
 	lexer.AddTokenDefinition("PLUS", `\+`)
 	lexer.AddTokenDefinition("TIMES", `\*`)
 	lexer.AddTokenDefinition("L_PAR", `\(`)
 	lexer.AddTokenDefinition("R_PAR", `\)`)
 
 	lexer.Init()
-
 	lexer.OpenFile("expr_test2.txt")
 
-	parser.Parse()
+	parser.AddParserRule("E -> E PLUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue + p[3].IntegerValue; fmt.Println(p[0].IntegerValue) })
+	parser.AddParserRule("E -> T", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
+	parser.AddParserRule("T -> T TIMES F", func(p T) { p[0].IntegerValue = p[1].IntegerValue * p[3].IntegerValue })
+	parser.AddParserRule("T -> F", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
+	parser.AddParserRule("F -> L_PAR E R_PAR", func(p T) { p[0].IntegerValue = p[2].IntegerValue })
+	parser.AddParserRule("F -> NUM", func(p T) { p[0].IntegerValue, _ = strconv.Atoi(p[1].GetStringValue()) })
 
-	testSliceToken := make(map[string]int)
-	testSliceNonTerminal := make(map[string]int)
+	parser.ParseWithSemanticActions()
 
-	testSliceToken["ID"] = 0
-	testSliceToken["PLUS"] = 1
-	testSliceToken["TIMES"] = 2
-	testSliceToken["L_PAR"] = 3
-	testSliceToken["R_PAR"] = 4
+	//testSliceToken := make(map[string]int)
+	//testSliceNonTerminal := make(map[string]int)
 
-	result, _ := parser.ToParserRule("E -> E PLUS T", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
-
-	result, _ = parser.ToParserRule("E -> T", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
-
-	result, _ = parser.ToParserRule("T -> T TIMES F", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
-
-	result, _ = parser.ToParserRule("T -> F", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
-
-	result, _ = parser.ToParserRule("F -> L_PAR E R_PAR", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
-
-	result, _ = parser.ToParserRule("F -> ID", testSliceToken, testSliceNonTerminal)
-	fmt.Println(result)
+	// testSliceToken["ID"] = 0
+	// testSliceToken["PLUS"] = 1
+	// testSliceToken["TIMES"] = 2
+	// testSliceToken["L_PAR"] = 3
+	// testSliceToken["R_PAR"] = 4
 
 }

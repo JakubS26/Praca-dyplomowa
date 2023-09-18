@@ -18,6 +18,13 @@ type Token struct {
 	matchedText string
 }
 
+func (t Token) GetMatchedText() string {
+	return t.matchedText
+}
+
+var tokenNames map[string]int = make(map[string]int)
+var nextTokenId int = 0
+
 var tokenDefinitions []TokenDefinition
 var compiledRegexes []*regexp.Regexp
 
@@ -25,12 +32,18 @@ var fileBuffer []byte
 
 func AddTokenDefinition(name, regex string) {
 	tokenDefinitions = append(tokenDefinitions, TokenDefinition{name, regex})
+	tokenNames[name] = nextTokenId
+	nextTokenId++
 }
 
 func PrintTokens() {
 	for i := range tokenDefinitions {
 		fmt.Println(tokenDefinitions[i].name, tokenDefinitions[i].regex)
 	}
+}
+
+func GetTokenNames() map[string]int {
+	return tokenNames
 }
 
 func OpenFile(fileName string) error {
@@ -121,6 +134,30 @@ func NextToken() (Token, error) {
 	return Token{"", ""}, errors.New("The lexer was not able to match given input!")
 }
 
+func NextTokenWithId() (Token, int, error) {
+	var matchedText string
+	var matchedLoc []int
+
+	if len(fileBuffer) == 0 {
+		return Token{"", ""}, len(tokenDefinitions), errors.New("End of input.")
+	}
+
+	for i, re := range compiledRegexes {
+		matchedLoc = re.FindIndex(fileBuffer)
+
+		if matchedLoc != nil && matchedLoc[0] == 0 {
+			matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
+			fileBuffer = fileBuffer[matchedLoc[1]:]
+			//fmt.Println(Token{tokenDefinitions[i].name, matchedText}, i)
+			return Token{tokenDefinitions[i].name, matchedText}, i, nil
+		}
+
+	}
+
+	fmt.Println("The lexer was not able to match given input!")
+	return Token{"", ""}, 0, errors.New("The lexer was not able to match given input!")
+}
+
 func NextTokenId() (int, error) {
 	var matchedLoc []int
 
@@ -133,6 +170,7 @@ func NextTokenId() (int, error) {
 
 		if matchedLoc != nil && matchedLoc[0] == 0 {
 			fileBuffer = fileBuffer[matchedLoc[1]:]
+			//fmt.Println(i)
 			return i, nil
 		}
 
@@ -141,3 +179,27 @@ func NextTokenId() (int, error) {
 	fmt.Println("The lexer was not able to match given input!")
 	return 0, errors.New("The lexer was not able to match given input!")
 }
+
+// func NextTokenId2() (int, error) {
+// 	//var matchedText string
+// 	var matchedLoc []int
+
+// 	if len(fileBuffer) == 0 {
+// 		return 0, errors.New("End of input.")
+// 	}
+
+// 	for i, re := range compiledRegexes {
+// 		matchedLoc = re.FindIndex(fileBuffer)
+
+// 		if matchedLoc != nil && matchedLoc[0] == 0 {
+// 			//matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
+// 			fileBuffer = fileBuffer[matchedLoc[1]:]
+// 			//fmt.Println(Token{tokenDefinitions[i].name, matchedText}, i)
+// 			return i, nil
+// 		}
+
+// 	}
+
+// 	fmt.Println("The lexer was not able to match given input!")
+// 	return 0, errors.New("The lexer was not able to match given input!")
+// }

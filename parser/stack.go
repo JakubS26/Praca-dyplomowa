@@ -35,3 +35,12 @@ func (S *Stack[T]) Peek() (T, error) {
 	value = S.data[len(S.data)-1]
 	return value, nil
 }
+
+func (S *Stack[T]) Size() int {
+	return len(S.data)
+}
+
+func (S *Stack[T]) TopSubStack(depth int) []T {
+	//fmt.Println(S.data[S.Size()-depth:])
+	return S.data[S.Size()-depth:]
+}
