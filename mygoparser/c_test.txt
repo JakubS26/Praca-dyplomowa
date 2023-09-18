@@ -1,6 +1,6 @@
 int main() {
 
-	int x = 36;
+	int x36int3 = 36;
 	int y = 47;
 	
 	if(x > y) {

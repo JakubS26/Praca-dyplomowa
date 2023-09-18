@@ -103,7 +103,6 @@ func NextToken() (Token, error) {
 	var matchedLoc []int
 
 	if len(fileBuffer) == 0 {
-		fmt.Println("End of input.")
 		return Token{"", ""}, errors.New("End of input.")
 	}
 
@@ -112,7 +111,6 @@ func NextToken() (Token, error) {
 
 		if matchedLoc != nil && matchedLoc[0] == 0 {
 			matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
-			//fmt.Printf("%v, %v\n", matchedLoc[0], matchedLoc[1])
 			fileBuffer = fileBuffer[matchedLoc[1]:]
 			return Token{tokenDefinitions[i].name, matchedText}, nil
 		}
@@ -121,4 +119,25 @@ func NextToken() (Token, error) {
 
 	fmt.Println("The lexer was not able to match given input!")
 	return Token{"", ""}, errors.New("The lexer was not able to match given input!")
+}
+
+func NextTokenId() (int, error) {
+	var matchedLoc []int
+
+	if len(fileBuffer) == 0 {
+		return len(tokenDefinitions), errors.New("End of input.")
+	}
+
+	for i, re := range compiledRegexes {
+		matchedLoc = re.FindIndex(fileBuffer)
+
+		if matchedLoc != nil && matchedLoc[0] == 0 {
+			fileBuffer = fileBuffer[matchedLoc[1]:]
+			return i, nil
+		}
+
+	}
+
+	fmt.Println("The lexer was not able to match given input!")
+	return 0, errors.New("The lexer was not able to match given input!")
 }
