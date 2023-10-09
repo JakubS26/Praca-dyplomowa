@@ -179,27 +179,3 @@ func NextTokenId() (int, error) {
 	fmt.Println("The lexer was not able to match given input!")
 	return 0, errors.New("The lexer was not able to match given input!")
 }
-
-// func NextTokenId2() (int, error) {
-// 	//var matchedText string
-// 	var matchedLoc []int
-
-// 	if len(fileBuffer) == 0 {
-// 		return 0, errors.New("End of input.")
-// 	}
-
-// 	for i, re := range compiledRegexes {
-// 		matchedLoc = re.FindIndex(fileBuffer)
-
-// 		if matchedLoc != nil && matchedLoc[0] == 0 {
-// 			//matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
-// 			fileBuffer = fileBuffer[matchedLoc[1]:]
-// 			//fmt.Println(Token{tokenDefinitions[i].name, matchedText}, i)
-// 			return i, nil
-// 		}
-
-// 	}
-
-// 	fmt.Println("The lexer was not able to match given input!")
-// 	return 0, errors.New("The lexer was not able to match given input!")
-// }

@@ -13,6 +13,7 @@ import (
 //Terminale oraz nietermiale będą reprezentowane licznbami naturnalymi
 //(np. 0-10 terminale (te same co w lekserze) 11-14 nieterminale)
 
+// Inna nazwa: Stack item
 type Object struct {
 	id           int
 	IntegerValue int
@@ -41,25 +42,42 @@ type ParserRule struct {
 	action        func([]Object)
 }
 
+// Funkcja tylko do tesów to do celów debugowania
+func GetSymbolName(id int) string {
+
+	for name, index := range lexer.GetTokenNames() {
+		if index == id {
+			return name
+		}
+	}
+
+	for name, index := range nonTerminalNames {
+		if index == id {
+			return name
+		}
+	}
+
+	return "S'"
+}
+
+func CreateParserRule(leftHandSide int, rightHandSide []int, action func([]Object)) ParserRule {
+	return ParserRule{leftHandSide, rightHandSide, action}
+}
+
+func (p ParserRule) GetRightHandSideLength() int {
+	return len(p.rightHandSide)
+}
+
+func (p ParserRule) GetRightHandSideSymbol(index int) int {
+	return p.rightHandSide[index]
+}
+
+func (p ParserRule) GetLeftHandSideSymbol() int {
+	return p.leftHandSide
+}
+
 var S Stack[int]
 var ActionS Stack[Object]
-
-// Liczba terminali i nieterminali gramatyki
-var teminals int = 5
-var nonteminals int = 3
-
-//Produkcje gramatyki z książki (do testów)
-/*Numeracja symboli:
-0 id
-1 +
-2 *
-3 (
-4 )
-5 $
-6 E
-7 T
-8 F
-*/
 
 func checkNonterminalName(s string) bool {
 
@@ -74,6 +92,10 @@ func checkNonterminalName(s string) bool {
 }
 
 var nonTerminalNames map[string]int = make(map[string]int)
+
+func GetNumberOfGrammarSymbols() int {
+	return len(lexer.GetTokenNames()) + len(nonTerminalNames) + 1
+}
 
 func toParserRule(s string, tokenNames map[string]int, action func([]Object)) (ParserRule, error) {
 
@@ -157,22 +179,15 @@ func toParserRule(s string, tokenNames map[string]int, action func([]Object)) (P
 	return ParserRule{leftHandSide, rightHandSide, action}, nil
 }
 
-// var rules []ParserRule = []ParserRule{
-// 	//E -> E + T
-// 	{6, []int{6, 1, 7}},
-// 	//E -> T
-// 	{6, []int{7}},
-// 	//T -> T * F
-// 	{7, []int{7, 2, 8}},
-// 	//T -> F
-// 	{7, []int{8}},
-// 	//F -> (E)
-// 	{8, []int{3, 6, 4}},
-// 	//F -> id
-// 	{8, []int{0}},
-// }
-
 var rules []ParserRule
+
+func GetParserRules() []ParserRule {
+	return rules
+}
+
+func GetMinimalNonTerminalIndex() int {
+	return len(lexer.GetTokenNames()) + 1
+}
 
 func AddParserRule(s string, action func([]Object)) error {
 
