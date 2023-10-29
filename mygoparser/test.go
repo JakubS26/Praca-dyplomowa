@@ -37,4 +37,14 @@ func main() {
 		fmt.Printf("\n")
 	}
 
+	transitions := parsergen.GetTransitions()
+
+	for _, x := range transitions {
+		for _, y := range x {
+			fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
+		}
+	}
+
+	parsergen.GenerateDrSets()
+
 }

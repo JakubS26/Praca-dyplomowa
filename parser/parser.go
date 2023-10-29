@@ -186,6 +186,7 @@ func GetParserRules() []ParserRule {
 }
 
 func GetMinimalNonTerminalIndex() int {
+	//fmt.Println("RESULT: ", len(lexer.GetTokenNames())+1)
 	return len(lexer.GetTokenNames()) + 1
 }
 

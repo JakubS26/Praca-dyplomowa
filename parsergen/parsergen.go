@@ -12,10 +12,11 @@ import (
 // znajduje się ona przed elementem tablcy 0 (na samym początku produkcji).
 
 var rules []parser.ParserRule
-var minimalNonTerminalIndex = parser.GetMinimalNonTerminalIndex()
+
+//var minimalNonTerminalIndex = parser.GetMinimalNonTerminalIndex()
 
 func isNonTerminal(index int) bool {
-	if index >= minimalNonTerminalIndex {
+	if index >= parser.GetMinimalNonTerminalIndex() {
 		return true
 	} else {
 		return false
@@ -28,6 +29,26 @@ type lr0Item struct {
 }
 
 type lr0ItemSet = []lr0Item
+
+type automatonTransition struct {
+	sourceState int
+	destState   int
+	symbol      int
+}
+
+func (at automatonTransition) GetSourceState() int {
+	return at.sourceState
+}
+
+func (at automatonTransition) GetDestState() int {
+	return at.destState
+}
+
+func (at automatonTransition) GetSymbol() int {
+	return at.symbol
+}
+
+var transitions [][]automatonTransition
 
 var itemSets []lr0ItemSet
 var numberOfSymbols int = parser.GetNumberOfGrammarSymbols()
@@ -81,6 +102,8 @@ func closure(I lr0ItemSet) lr0ItemSet {
 
 		currentItem := J[i]
 
+		//fmt.Println("MTI1: ", parser.GetMinimalNonTerminalIndex())
+
 		if !currentItem.isComplete() && isNonTerminal(rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)) {
 
 			nonterminal := rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)
@@ -117,16 +140,20 @@ func gotoFunction(I lr0ItemSet, symbol int) lr0ItemSet {
 
 }
 
-func isElement(I lr0ItemSet, C []lr0ItemSet) bool {
+func isElement(I lr0ItemSet, C []lr0ItemSet) (bool, int) {
 
-	for _, element := range C {
+	for index, element := range C {
 		if reflect.DeepEqual(element, I) {
-			return true
+			return true, index
 		}
 	}
 
-	return false
+	return false, -1
 
+}
+
+func GetTransitions() [][]automatonTransition {
+	return transitions
 }
 
 func CreateLr0ItemSets() []lr0ItemSet {
@@ -139,6 +166,12 @@ func CreateLr0ItemSets() []lr0ItemSet {
 	var C []lr0ItemSet = make([][]lr0Item, 0)
 	var firstItem lr0Item = lr0Item{len(rules) - 1, 0}
 
+	// Inicjalizujemy zmienną do przechowywania przejść automatu LR(0) (krawędzi grafu automatu LR(0))
+
+	transitions = make([][]automatonTransition, 1)
+
+	// C - kolekcja zbiorów sytuacji LR(0)
+
 	C = append(C, closure([]lr0Item{firstItem}))
 
 	for i := 0; i < len(C); i++ {
@@ -148,8 +181,14 @@ func CreateLr0ItemSets() []lr0ItemSet {
 
 			//fmt.Println("i = ", i, "; j = ", j, "; GOTO = ", gotoResult)
 
-			if len(gotoResult) != 0 && !isElement(gotoResult, C) {
+			isElem, index := isElement(gotoResult, C)
+
+			if len(gotoResult) != 0 && !isElem {
 				C = append(C, gotoResult)
+				transitions = append(transitions, make([]automatonTransition, 0))
+				transitions[i] = append(transitions[i], automatonTransition{i, len(C) - 1, j})
+			} else if isElem {
+				transitions[i] = append(transitions[i], automatonTransition{i, index, j})
 			}
 
 		}
