@@ -72,6 +72,10 @@ func (p ParserRule) GetRightHandSideSymbol(index int) int {
 	return p.rightHandSide[index]
 }
 
+func (p ParserRule) GetRightHandSide() []int {
+	return p.rightHandSide
+}
+
 func (p ParserRule) GetLeftHandSideSymbol() int {
 	return p.leftHandSide
 }
