@@ -1,7 +1,6 @@
 package parsergen
 
 import (
-	"fmt"
 	"goparser/parser"
 )
 
@@ -72,13 +71,13 @@ func generateReadsRelation(automatonTransitions [][]automatonTransition, nullabl
 			if len(readsRelation) != 0 {
 				result[stateSymbolPair{state, edge.symbol}] = readsRelation
 
-				fmt.Println()
-				fmt.Println("STATE: ", state)
-				fmt.Println("SYMBOL: ", parser.GetSymbolName(edge.symbol))
-				for _, i := range readsRelation {
-					fmt.Println(i.state, "   ", parser.GetSymbolName(i.symbol))
-				}
-				fmt.Println()
+				// fmt.Println()
+				// fmt.Println("STATE: ", state)
+				// fmt.Println("SYMBOL: ", parser.GetSymbolName(edge.symbol))
+				// for _, i := range readsRelation {
+				// 	fmt.Println(i.state, "   ", parser.GetSymbolName(i.symbol))
+				// }
+				// fmt.Println()
 			}
 
 		}

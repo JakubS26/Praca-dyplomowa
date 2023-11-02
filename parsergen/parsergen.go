@@ -36,6 +36,10 @@ type automatonTransition struct {
 	symbol      int
 }
 
+func CreateAutomatonTransition(source int, dest int, symbol int) automatonTransition {
+	return automatonTransition{source, dest, symbol}
+}
+
 func (at automatonTransition) GetSourceState() int {
 	return at.sourceState
 }
