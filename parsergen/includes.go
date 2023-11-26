@@ -75,13 +75,13 @@ func generateIncludesRelation(automatonTransitions [][]automatonTransition, null
 					if finalState != -1 {
 
 						// Sprawdzamy czy dana para ma już przypisany swój wycinek
-						if result[stateSymbolPair{symbol, state}] == nil {
-							result[stateSymbolPair{symbol, state}] = make([]stateSymbolPair, 0)
+						if result[stateSymbolPair{finalState, symbol}] == nil {
+							result[stateSymbolPair{finalState, symbol}] = make([]stateSymbolPair, 0)
 						}
 
 						// Do wycinka odpowiadającego danej parze dodajemy parę, z którą jest ona w relacji includes
 						// (p, A) includes (p', B)
-						result[stateSymbolPair{symbol, state}] = append(result[stateSymbolPair{symbol, state}], stateSymbolPair{finalState, leftSymbol})
+						result[stateSymbolPair{finalState, symbol}] = append(result[stateSymbolPair{finalState, symbol}], stateSymbolPair{state, leftSymbol})
 					}
 
 				}

@@ -36,6 +36,7 @@ func GenerateDrSets() map[stateSymbolPair][]int {
 			if len(drSet) != 0 {
 				result[stateSymbolPair{state, edge.symbol}] = drSet
 
+				//* To do wywalenia po zakończeniu testów
 				fmt.Println()
 				fmt.Println("STATE: ", state)
 				fmt.Println("SYMBOL: ", parser.GetSymbolName(edge.symbol))
@@ -43,6 +44,7 @@ func GenerateDrSets() map[stateSymbolPair][]int {
 					fmt.Println(parser.GetSymbolName(i))
 				}
 				fmt.Println()
+				//*************************
 			}
 
 		}

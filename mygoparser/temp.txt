@@ -34,3 +34,219 @@
 	// }
 
 	/***********************************************************/
+
+
+
+
+
+
+S' ->  . E   
+E ->  . E PLUS T   
+E ->  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+F -> NUM  .  
+
+F -> L_PAR  . E R_PAR   
+E ->  . E PLUS T   
+E ->  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+S' -> E  .  
+E -> E  . PLUS T   
+
+E -> T  .  
+T -> T  . TIMES F   
+
+T -> F  .  
+
+F -> L_PAR E  . R_PAR   
+E -> E  . PLUS T   
+
+E -> E PLUS  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+T -> T TIMES  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+F -> L_PAR E R_PAR  .  
+
+E -> E PLUS T  .  
+T -> T  . TIMES F   
+
+T -> T TIMES F  .  
+
+0    NUM    1
+0    L_PAR    2
+0    E    3
+0    T    4
+0    F    5
+2    NUM    1
+2    L_PAR    2
+2    E    6
+2    T    4
+2    F    5
+3    PLUS    7
+4    TIMES    8
+6    PLUS    7
+6    R_PAR    9
+7    NUM    1
+7    L_PAR    2
+7    T    10
+7    F    5
+8    NUM    1
+8    L_PAR    2
+8    F    11
+10    TIMES    8
+
+STATE:  0
+SYMBOL:  E
+PLUS
+
+
+STATE:  0
+SYMBOL:  T
+TIMES
+
+
+STATE:  2
+SYMBOL:  E
+PLUS
+R_PAR
+
+
+STATE:  2
+SYMBOL:  T
+TIMES
+
+
+STATE:  7
+SYMBOL:  T
+TIMES
+
+
+
+
+
+
+
+
+
+S' ->  . E   
+E ->  . E PLUS T   
+E ->  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+F -> NUM  .  
+
+F -> L_PAR  . E R_PAR   
+E ->  . E PLUS T   
+E ->  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+S' -> E  .  
+E -> E  . PLUS T   
+
+E -> T  .  
+T -> T  . TIMES F   
+
+T -> F  .  
+
+F -> L_PAR E  . R_PAR   
+E -> E  . PLUS T   
+
+E -> E PLUS  . T   
+T ->  . T TIMES F   
+T ->  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+T -> T TIMES  . F   
+F ->  . L_PAR E R_PAR   
+F ->  . NUM   
+
+F -> L_PAR E R_PAR  .  
+
+E -> E PLUS T  .  
+T -> T  . TIMES F   
+
+T -> T TIMES F  .  
+
+0    NUM    1
+0    L_PAR    2
+0    E    3
+0    T    4
+0    F    5
+2    NUM    1
+2    L_PAR    2
+2    E    6
+2    T    4
+2    F    5
+3    PLUS    7
+4    TIMES    8
+6    PLUS    7
+6    R_PAR    9
+7    NUM    1
+7    L_PAR    2
+7    T    10
+7    F    5
+8    NUM    1
+8    L_PAR    2
+8    F    11
+10    TIMES    8
+
+STATE:  0
+SYMBOL:  E
+PLUS
+
+
+STATE:  0
+SYMBOL:  T
+TIMES
+
+
+STATE:  2
+SYMBOL:  E
+PLUS
+R_PAR
+
+
+STATE:  2
+SYMBOL:  T
+TIMES
+
+
+STATE:  7
+SYMBOL:  T
+TIMES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

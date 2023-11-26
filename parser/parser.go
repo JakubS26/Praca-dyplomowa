@@ -10,7 +10,7 @@ import (
 	"unicode"
 )
 
-//Terminale oraz nietermiale będą reprezentowane licznbami naturnalymi
+//Terminale oraz nietermiale będą reprezentowane liczbami naturnalymi
 //(np. 0-10 terminale (te same co w lekserze) 11-14 nieterminale)
 
 // Inna nazwa: Stack item
@@ -57,7 +57,15 @@ func GetSymbolName(id int) string {
 		}
 	}
 
-	return "S'"
+	if id == -1 {
+		return "S'"
+	}
+
+	if id == len(lexer.GetTokenNames()) {
+		return "$"
+	}
+
+	return "Unknown symbol!"
 }
 
 func CreateParserRule(leftHandSide int, rightHandSide []int, action func([]Object)) ParserRule {
@@ -189,9 +197,15 @@ func GetParserRules() []ParserRule {
 	return rules
 }
 
+// Zwraca pierwszy indeks (liczbę), jaki został nadany symbolowi nieterminalnemu.
+// Jest to również (zgodnie z konwencją przyjętą w tym programie) indeks symbolu
+// startowego wprowadzonej przez użytkownika gramatyki.
 func GetMinimalNonTerminalIndex() int {
-	//fmt.Println("RESULT: ", len(lexer.GetTokenNames())+1)
 	return len(lexer.GetTokenNames()) + 1
+}
+
+func GetEndOfInputSymbolId() int {
+	return len(lexer.GetTokenNames())
 }
 
 func AddParserRule(s string, action func([]Object)) error {
