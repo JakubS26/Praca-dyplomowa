@@ -46,9 +46,17 @@ func FindNullable(rules []parser.ParserRule) map[int]struct{} {
 	return result
 }
 
-func generateReadsRelation(automatonTransitions [][]automatonTransition, nullableSymbols map[int]struct{}) map[stateSymbolPair][]stateSymbolPair {
+func generateReadsRelation(automatonTransitions [][]automatonTransition,
+	nullableSymbols map[int]struct{}, minNonterminalId int) map[stateSymbolPair][]stateSymbolPair {
 
 	result := make(map[stateSymbolPair][]stateSymbolPair)
+
+	checkNonterminal := func(id int) bool {
+		if id >= minNonterminalId {
+			return true
+		}
+		return false
+	}
 
 	//Przeszukujemy wszystkie możliwe przejścia z kolejnych stanów
 	for state, edges := range automatonTransitions {
@@ -57,7 +65,7 @@ func generateReadsRelation(automatonTransitions [][]automatonTransition, nullabl
 			readsRelation := make([]stateSymbolPair, 0)
 
 			//Napotkano przejście z aktualnego stanu do innego stanu z symbolem nieterminalnym
-			if isNonTerminal(edge.symbol) {
+			if checkNonterminal(edge.symbol) {
 
 				for _, nextEdge := range automatonTransitions[edge.destState] {
 					_, isNullable := nullableSymbols[nextEdge.symbol]

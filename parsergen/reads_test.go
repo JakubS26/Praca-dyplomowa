@@ -73,7 +73,7 @@ func TestIsNullable2(t *testing.T) {
 
 }
 
-func TestReadsRealtion(t *testing.T) {
+func TestReadsRelation(t *testing.T) {
 
 	testTransitions := make([][]automatonTransition, 7)
 
@@ -95,7 +95,7 @@ func TestReadsRealtion(t *testing.T) {
 		6: {},
 	}
 
-	readsRelation := generateReadsRelation(testTransitions, nullableSybmols)
+	readsRelation := generateReadsRelation(testTransitions, nullableSybmols, 0)
 
 	// for key, value := range readsRelation {
 	// 	fmt.Println("KEY: ", key, "VALUE: ", value)
@@ -104,6 +104,8 @@ func TestReadsRealtion(t *testing.T) {
 	if len(readsRelation) > 3 {
 		t.Fatalf("Too many pairs in reads relation were found")
 	}
+
+	//fmt.Println(readsRelation[stateSymbolPair{0, 1}])
 
 	value, ok := readsRelation[stateSymbolPair{0, 1}]
 	if !ok || len(value) != 1 || value[0].state != 2 || value[0].symbol != 4 {

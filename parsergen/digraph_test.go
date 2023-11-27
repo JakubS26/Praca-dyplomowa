@@ -1,7 +1,6 @@
 package parsergen
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -12,7 +11,15 @@ func TestSimpleSetUnion(t *testing.T) {
 
 	set3 := simpleSetUnion(set1, set2)
 
-	fmt.Println(set3)
+	if len(set3) != 13 {
+		t.Fatalf("Wrong number of elements in result set")
+	}
+
+	check := checkElements(set3, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13})
+
+	if !check {
+		t.Fatalf("Not all elements are present in result set")
+	}
 
 }
 
@@ -40,11 +47,13 @@ func TestDigraph1(t *testing.T) {
 	result := digraphAlgorithm(predefinedSets, relation,
 		minNonTerminalIndex, maxNonterminalIndex, numberOfStates)
 
-	for key, value := range result {
-		if len(value) > 0 {
-			fmt.Println(key)
-			fmt.Print(value, "\n\n")
-		}
-	}
+	_ = result
+
+	// for key, value := range result {
+	// 	if len(value) > 0 {
+	// 		fmt.Println(key)
+	// 		fmt.Print(value, "\n\n")
+	// 	}
+	// }
 
 }

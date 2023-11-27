@@ -18,10 +18,15 @@ func GenerateLalrParseTables(automatonTransitions [][]automatonTransition,
 		parseTable[i] = make([]string, numberOfGrammarSymbols)
 	}
 
-	// W opdowiednim stanie (1), gdy widzimy symbol końca inputu, ustawiamy akcję akceptuj
-	// !!! Sprawdzić, czy to zawsze tak działa !!! <----- nie, nie zawsze, do zmiany !!!
+	// W opdowiednim stanie gdy widzimy symbol końca inputu, ustawiamy akcję akceptuj
 
-	parseTable[1][endOfInputSymbolId] = "a"
+	for index, itemSet := range lr0ItemSetCollection {
+		for _, item := range itemSet {
+			if rules[item.ruleNumber].GetLeftHandSideSymbol() == -1 && item.markerLocation == 1 {
+				parseTable[index][endOfInputSymbolId] = "a"
+			}
+		}
+	}
 
 	// W tabelach parsowania ustawiamy akcję "shift" przy odpowiednich przejściach pomiędzy stanami automatu dla terminali
 

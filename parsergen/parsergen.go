@@ -167,7 +167,7 @@ func CreateLr0ItemSets() []lr0ItemSet {
 	rules = parser.GetParserRules()
 	rules = append(rules, parser.CreateParserRule(-1, []int{parser.GetMinimalNonTerminalIndex(), parser.GetEndOfInputSymbolId()}, nil))
 
-	fmt.Println("End of input symbol id: ", parser.GetEndOfInputSymbolId())
+	//fmt.Println("End of input symbol id: ", parser.GetEndOfInputSymbolId())
 
 	var C []lr0ItemSet = make([][]lr0Item, 0)
 	var firstItem lr0Item = lr0Item{len(rules) - 1, 0}

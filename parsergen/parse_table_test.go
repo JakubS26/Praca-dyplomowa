@@ -93,7 +93,7 @@ func TestParseTables(t *testing.T) {
 	}
 
 	lookaheadSets := map[stateProductionPair][]int{
-		{1, 0}: {2},       //$
+		//{1, 0}: {2},       //$
 		{4, 3}: {0, 1, 2}, //c, d, $
 		{6, 2}: {0, 1, 2}, //c, d, $
 		{5, 1}: {2},       //$
@@ -104,6 +104,9 @@ func TestParseTables(t *testing.T) {
 	fmt.Print(" ")
 
 	symNames := []string{"c", "d", "$", "S", "C"}
+
+	_ = result
+	_ = symNames
 
 	for i := 0; i < 5; i++ {
 		fmt.Printf("%5.5s", symNames[i])

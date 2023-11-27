@@ -1,7 +1,6 @@
 package parsergen
 
 import (
-	"fmt"
 	"goparser/parser"
 	"testing"
 )
@@ -59,9 +58,11 @@ func TestIncludes(t *testing.T) {
 
 	result := generateIncludesRelation(automatonTransitions, nullableSymbols, productions, checkNonterminal)
 
-	for key, value := range result {
-		fmt.Print(key)
-		fmt.Println("", value)
-	}
+	_ = result
+
+	// for key, value := range result {
+	// 	fmt.Print(key)
+	// 	fmt.Println("", value)
+	// }
 
 }
