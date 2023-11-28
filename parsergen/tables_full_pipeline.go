@@ -1,39 +1,13 @@
 package parsergen
 
-import (
-	"fmt"
-	"goparser/lexer"
-	"goparser/parser"
-	"testing"
-)
+import "goparser/parser"
 
-func TestFull(t *testing.T) {
-
-	lexer.AddTokenDefinition("c", `c`)
-	lexer.AddTokenDefinition("d", `d`)
-
-	lexer.Init()
-
-	parser.AddParserRule("S -> C C", nil)
-	parser.AddParserRule("C -> c C", nil)
-	parser.AddParserRule("C -> d", nil)
+func GenerateParser() {
 
 	C := CreateLr0ItemSets()
 	_ = C
 
-	for index, set := range C {
-		fmt.Println(index)
-		Print(set)
-		fmt.Printf("\n")
-	}
-
 	transitions := GetTransitions()
-
-	for _, x := range transitions {
-		for _, y := range x {
-			fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
-		}
-	}
 
 	// Wyznaczamy zbiory DR
 
@@ -76,37 +50,11 @@ func TestFull(t *testing.T) {
 
 	_ = lookaheadSets
 
-	for key, value := range lookaheadSets {
-		fmt.Println("State:", key.state, "Rule number:", key.productionId)
-		for _, symbol := range value {
-			fmt.Println(parser.GetSymbolName(symbol))
-		}
-	}
-
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
 	result, _ := GenerateLalrParseTables(transitions, lookaheadSets, rules, C,
 		parser.GetEndOfInputSymbolId(), parser.GetMinimalNonTerminalIndex(), parser.GetNumberOfGrammarSymbols())
 
-	fmt.Print(" ")
-	for i := 0; i < parser.GetNumberOfGrammarSymbols(); i++ {
-		fmt.Printf("%5.5s", parser.GetSymbolName(i))
-	}
-	fmt.Println()
-
-	for index, row := range result {
-		fmt.Print(index)
-		for _, action := range row {
-			fmt.Printf("%5.5s", action)
-		}
-		fmt.Println()
-	}
-
 	parser.SetParseTable(result)
-
-	sampleInput := "ccdcd"
-
-	lexer.SetInputString(sampleInput)
-	parser.Parse()
 
 }

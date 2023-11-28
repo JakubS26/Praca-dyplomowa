@@ -4,36 +4,47 @@ import (
 	"fmt"
 	"goparser/lexer"
 	"goparser/parser"
+	"strconv"
 	"testing"
 )
 
-func TestFull(t *testing.T) {
+type T = []parser.Object
 
-	lexer.AddTokenDefinition("c", `c`)
-	lexer.AddTokenDefinition("d", `d`)
+func TestCalc(t *testing.T) {
+
+	lexer.AddTokenDefinition("NL", `\n`)
+	lexer.AddTokenDefinition("NUM", `[0-9]+`)
+	lexer.AddTokenDefinition("PLUS", `\+`)
+	lexer.AddTokenDefinition("TIMES", `\*`)
+	lexer.AddTokenDefinition("L_PAR", `\(`)
+	lexer.AddTokenDefinition("R_PAR", `\)`)
 
 	lexer.Init()
 
-	parser.AddParserRule("S -> C C", nil)
-	parser.AddParserRule("C -> c C", nil)
-	parser.AddParserRule("C -> d", nil)
+	parser.AddParserRule("S -> E NL", func(p T) { fmt.Printf("Wynik: %d\n", p[1].IntegerValue) })
+	parser.AddParserRule("E -> E PLUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue + p[3].IntegerValue })
+	parser.AddParserRule("E -> T", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
+	parser.AddParserRule("T -> T TIMES F", func(p T) { p[0].IntegerValue = p[1].IntegerValue * p[3].IntegerValue })
+	parser.AddParserRule("T -> F", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
+	parser.AddParserRule("F -> L_PAR E R_PAR", func(p T) { p[0].IntegerValue = p[2].IntegerValue })
+	parser.AddParserRule("F -> NUM", func(p T) { p[0].IntegerValue, _ = strconv.Atoi(p[1].GetStringValue()) })
 
 	C := CreateLr0ItemSets()
 	_ = C
 
-	for index, set := range C {
-		fmt.Println(index)
-		Print(set)
-		fmt.Printf("\n")
-	}
+	// for index, set := range C {
+	// 	fmt.Println(index)
+	// 	Print(set)
+	// 	fmt.Printf("\n")
+	// }
 
 	transitions := GetTransitions()
 
-	for _, x := range transitions {
-		for _, y := range x {
-			fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
-		}
-	}
+	// for _, x := range transitions {
+	// 	for _, y := range x {
+	// 		fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
+	// 	}
+	// }
 
 	// Wyznaczamy zbiory DR
 
@@ -76,12 +87,12 @@ func TestFull(t *testing.T) {
 
 	_ = lookaheadSets
 
-	for key, value := range lookaheadSets {
-		fmt.Println("State:", key.state, "Rule number:", key.productionId)
-		for _, symbol := range value {
-			fmt.Println(parser.GetSymbolName(symbol))
-		}
-	}
+	// for key, value := range lookaheadSets {
+	// 	fmt.Println("State:", key.state, "Rule number:", key.productionId)
+	// 	for _, symbol := range value {
+	// 		fmt.Println(parser.GetSymbolName(symbol))
+	// 	}
+	// }
 
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
@@ -90,23 +101,30 @@ func TestFull(t *testing.T) {
 
 	fmt.Print(" ")
 	for i := 0; i < parser.GetNumberOfGrammarSymbols(); i++ {
-		fmt.Printf("%5.5s", parser.GetSymbolName(i))
+		fmt.Printf("%6.6s", parser.GetSymbolName(i))
 	}
 	fmt.Println()
 
 	for index, row := range result {
 		fmt.Print(index)
 		for _, action := range row {
-			fmt.Printf("%5.5s", action)
+			fmt.Printf("%6.6s", action)
 		}
 		fmt.Println()
 	}
 
 	parser.SetParseTable(result)
 
-	sampleInput := "ccdcd"
-
+	sampleInput := "333*(123+456)\n"
 	lexer.SetInputString(sampleInput)
-	parser.Parse()
+	parser.ParseWithSemanticActions()
+
+	sampleInput = "(1+2)*(3+4)\n"
+	lexer.SetInputString(sampleInput)
+	parser.ParseWithSemanticActions()
+
+	sampleInput = "1+0+1+0+1+0\n"
+	lexer.SetInputString(sampleInput)
+	parser.ParseWithSemanticActions()
 
 }

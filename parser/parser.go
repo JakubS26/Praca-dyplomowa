@@ -219,21 +219,28 @@ func AddParserRule(s string, action func([]Object)) error {
 	return err
 }
 
+func SetParseTable(pt [][]string) {
+	parsingTable = pt
+}
+
 // Tabela parsowania z książki (do testów)
 // int, przesunięcia bitowe
-var parsingTable [][]string = [][]string{
-	{"s5", "", "", "s4", "", "", "1", "2", "3"},
-	{"", "s6", "", "", "", "a", "", "", ""},
-	{"", "r2", "s7", "", "r2", "r2", "", "", ""},
-	{"", "r4", "r4", "", "r4", "r4", "", "", ""},
-	{"s5", "", "", "s4", "", "", "8", "2", "3"},
-	{"", "r6", "r6", "", "r6", "r6", "", "", ""},
-	{"s5", "", "", "s4", "", "", "", "9", "3"},
-	{"s5", "", "", "s4", "", "", "", "", "10"},
-	{"", "s6", "", "", "s11", "", "", "", ""},
-	{"", "r1", "s7", "", "r1", "r1", "", "", ""},
-	{"", "r3", "r3", "", "r3", "r3", "", "", ""},
-	{"", "r5", "r5", "", "r5", "r5", "", "", ""}}
+//
+//	var parsingTable [][]string = [][]string{
+//		{"s5", "", "", "s4", "", "", "1", "2", "3"},
+//		{"", "s6", "", "", "", "a", "", "", ""},
+//		{"", "r2", "s7", "", "r2", "r2", "", "", ""},
+//		{"", "r4", "r4", "", "r4", "r4", "", "", ""},
+//		{"s5", "", "", "s4", "", "", "8", "2", "3"},
+//		{"", "r6", "r6", "", "r6", "r6", "", "", ""},
+//		{"s5", "", "", "s4", "", "", "", "9", "3"},
+//		{"s5", "", "", "s4", "", "", "", "", "10"},
+//		{"", "s6", "", "", "s11", "", "", "", ""},
+//		{"", "r1", "s7", "", "r1", "r1", "", "", ""},
+//		{"", "r3", "r3", "", "r3", "r3", "", "", ""},
+//		{"", "r5", "r5", "", "r5", "r5", "", "", ""}}
+
+var parsingTable [][]string
 
 func Parse() {
 	//Pobieramy pierwszy token
@@ -243,6 +250,8 @@ func Parse() {
 	S.Push(0)
 
 	for true {
+
+		fmt.Println("STOS:", S)
 
 		s, _ := S.Peek()
 
@@ -259,13 +268,13 @@ func Parse() {
 		} else if string(parsingTable[s][a][0]) == "r" {
 
 			n, _ := strconv.Atoi(parsingTable[s][a][1:])
-			symbolsToPop := len(rules[n-1].rightHandSide)
+			symbolsToPop := len(rules[n].rightHandSide)
 			for i := 1; i <= symbolsToPop; i++ {
 				S.Pop()
 			}
 
 			t, _ := S.Peek()
-			A := rules[n-1].leftHandSide
+			A := rules[n].leftHandSide
 			gotoSymbol, _ := strconv.Atoi(parsingTable[t][A])
 			S.Push(gotoSymbol)
 			fmt.Println("Wykonano redukcję: ", parsingTable[s][a])
@@ -297,13 +306,13 @@ func ParseWithSemanticActions() {
 			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])
 			ActionS.Push(Object{t, 0, tok.GetMatchedText()})
 			//fmt.Println(t, tok.GetMatchedText())
-			fmt.Println("Wykonano przesunięcie: ", parsingTable[s.id][a])
+			//fmt.Println("Wykonano przesunięcie: ", parsingTable[s.id][a])
 			tok, a, _ = lexer.NextTokenWithId()
 
 		} else if string(parsingTable[s.id][a][0]) == "r" {
 
 			n, _ := strconv.Atoi(parsingTable[s.id][a][1:])
-			symbolsToPop := len(rules[n-1].rightHandSide)
+			symbolsToPop := len(rules[n].rightHandSide)
 
 			semanticValues := make([]Object, 0, symbolsToPop+1)
 			semanticValues = append(semanticValues, Object{})
@@ -311,7 +320,7 @@ func ParseWithSemanticActions() {
 
 			//fmt.Println(semanticValues)
 
-			rules[n-1].action(semanticValues)
+			rules[n].action(semanticValues)
 
 			//fmt.Println(semanticValues)
 
@@ -320,15 +329,15 @@ func ParseWithSemanticActions() {
 			}
 
 			t, _ := ActionS.Peek()
-			A := rules[n-1].leftHandSide
+			A := rules[n].leftHandSide
 			gotoSymbol, _ := strconv.Atoi(parsingTable[t.id][A])
 			ActionS.Push(Object{gotoSymbol, semanticValues[0].IntegerValue, semanticValues[0].StringValue})
 			//ActionS.Push(Object{gotoSymbol, 0, ""})
 
-			fmt.Println("Wykonano redukcję: ", parsingTable[s.id][a])
+			//fmt.Println("Wykonano redukcję: ", parsingTable[s.id][a])
 
 		} else if string(parsingTable[s.id][a][0]) == "a" {
-			fmt.Println("Parsowanie zakończone")
+			//fmt.Println("Parsowanie zakończone")
 			break
 		}
 

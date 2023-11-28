@@ -57,17 +57,12 @@ func OpenFile(fileName string) error {
 	return err
 }
 
+func SetInputString(input string) {
+	fileBuffer = []byte(input)
+}
+
 // Prints file to test whether is has been properly open
 func TestPrintFile() {
-	// reader := bufio.NewReader(file)
-
-	// var err error = nil
-	// var b byte = 0
-
-	// for err == nil {
-	// 	b, err = reader.ReadByte()
-	// 	fmt.Printf("%c", b)
-	// }
 	fmt.Print(string(fileBuffer))
 }
 
@@ -84,7 +79,7 @@ func Init() error {
 		}
 
 		for _, c := range tokenDefinitions[i].name {
-			if !(c == '_' || (unicode.IsLetter(c) && unicode.IsUpper(c))) {
+			if !(c == '_' || (unicode.IsLetter(c) /*&& unicode.IsUpper(c)*/)) {
 				return errors.New(fmt.Sprintf("Wrong character : %q. Names of tokens can contain only capital letters and underscores!", c))
 			}
 		}
@@ -153,7 +148,7 @@ func NextTokenWithId() (Token, int, error) {
 		}
 
 	}
-
+	fmt.Println("BUFFER:", fileBuffer)
 	fmt.Println("The lexer was not able to match given input!")
 	return Token{"", ""}, 0, errors.New("The lexer was not able to match given input!")
 }
