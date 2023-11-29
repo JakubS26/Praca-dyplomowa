@@ -18,6 +18,7 @@ type Object struct {
 	id           int
 	IntegerValue int
 	StringValue  string
+	//Value        interface{}
 }
 
 func (o Object) GetIntegerValue() int {
@@ -299,8 +300,8 @@ func ParseWithSemanticActions() {
 		s, _ := ActionS.Peek()
 
 		if parsingTable[s.id][a] == "" {
-			fmt.Println("Syntax error!")
-			os.Exit(1)
+			fmt.Printf("Syntax error!\n\n")
+			break
 		} else if string(parsingTable[s.id][a][0]) == "s" {
 
 			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])

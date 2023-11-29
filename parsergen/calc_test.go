@@ -15,7 +15,9 @@ func TestCalc(t *testing.T) {
 	lexer.AddTokenDefinition("NL", `\n`)
 	lexer.AddTokenDefinition("NUM", `[0-9]+`)
 	lexer.AddTokenDefinition("PLUS", `\+`)
+	lexer.AddTokenDefinition("MINUS", `\-`)
 	lexer.AddTokenDefinition("TIMES", `\*`)
+	lexer.AddTokenDefinition("DIV", `\/`)
 	lexer.AddTokenDefinition("L_PAR", `\(`)
 	lexer.AddTokenDefinition("R_PAR", `\)`)
 
@@ -23,8 +25,14 @@ func TestCalc(t *testing.T) {
 
 	parser.AddParserRule("S -> E NL", func(p T) { fmt.Printf("Wynik: %d\n", p[1].IntegerValue) })
 	parser.AddParserRule("E -> E PLUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue + p[3].IntegerValue })
+	parser.AddParserRule("E -> E MINUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue - p[3].IntegerValue })
 	parser.AddParserRule("E -> T", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
 	parser.AddParserRule("T -> T TIMES F", func(p T) { p[0].IntegerValue = p[1].IntegerValue * p[3].IntegerValue })
+	parser.AddParserRule("T -> T DIV F", func(p T) {
+		if p[3].IntegerValue != 0 {
+			p[0].IntegerValue = p[1].IntegerValue / p[3].IntegerValue
+		}
+	})
 	parser.AddParserRule("T -> F", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
 	parser.AddParserRule("F -> L_PAR E R_PAR", func(p T) { p[0].IntegerValue = p[2].IntegerValue })
 	parser.AddParserRule("F -> NUM", func(p T) { p[0].IntegerValue, _ = strconv.Atoi(p[1].GetStringValue()) })
