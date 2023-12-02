@@ -106,8 +106,6 @@ func closure(I lr0ItemSet) lr0ItemSet {
 
 		currentItem := J[i]
 
-		//fmt.Println("MTI1: ", parser.GetMinimalNonTerminalIndex())
-
 		if !currentItem.isComplete() && isNonTerminal(rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)) {
 
 			nonterminal := rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)

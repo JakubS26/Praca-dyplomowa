@@ -10,44 +10,7 @@ import (
 	"strconv"
 )
 
-type T = []parser.Object
-
 func main() {
-
-	// lexer.AddTokenDefinition("NUM", `[0-9]+`)
-	// lexer.AddTokenDefinition("PLUS", `\+`)
-	// lexer.AddTokenDefinition("TIMES", `\*`)
-	// lexer.AddTokenDefinition("L_PAR", `\(`)
-	// lexer.AddTokenDefinition("R_PAR", `\)`)
-
-	// lexer.Init()
-	// lexer.OpenFile("expr_test4.txt")
-
-	// parser.AddParserRule("E -> E PLUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue + p[3].IntegerValue; fmt.Println(p[0].IntegerValue) })
-	// parser.AddParserRule("E -> T", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
-	// parser.AddParserRule("T -> T TIMES F", func(p T) { p[0].IntegerValue = p[1].IntegerValue * p[3].IntegerValue })
-	// parser.AddParserRule("T -> F", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
-	// parser.AddParserRule("F -> L_PAR E R_PAR", func(p T) { p[0].IntegerValue = p[2].IntegerValue })
-	// parser.AddParserRule("F -> NUM", func(p T) { p[0].IntegerValue, _ = strconv.Atoi(p[1].GetStringValue()) })
-
-	// //parser.ParseWithSemanticActions()
-
-	// C := parsergen.CreateLr0ItemSets()
-
-	// for _, set := range C {
-	// 	parsergen.Print(set)
-	// 	fmt.Printf("\n")
-	// }
-
-	// transitions := parsergen.GetTransitions()
-
-	// for _, x := range transitions {
-	// 	for _, y := range x {
-	// 		fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
-	// 	}
-	// }
-
-	// parsergen.GenerateDrSets(parser.GetMinimalNonTerminalIndex())
 
 	lexer.AddTokenDefinition("NEWLINE", `\n`)
 	lexer.AddTokenDefinition("NUM", `[0-9]+`)
@@ -58,21 +21,26 @@ func main() {
 	lexer.AddTokenDefinition("L_PAR", `\(`)
 	lexer.AddTokenDefinition("R_PAR", `\)`)
 
+	lexer.Ignore(` `)
+	lexer.Ignore(`\t`)
+
 	lexer.Init()
 
-	parser.AddParserRule("S -> E NEWLINE", func(p T) { fmt.Printf("Wynik: %d\n\n", p[1].IntegerValue) })
-	parser.AddParserRule("E -> E PLUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue + p[3].IntegerValue })
-	parser.AddParserRule("E -> E MINUS T", func(p T) { p[0].IntegerValue = p[1].IntegerValue - p[3].IntegerValue })
-	parser.AddParserRule("E -> T", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
-	parser.AddParserRule("T -> T TIMES F", func(p T) { p[0].IntegerValue = p[1].IntegerValue * p[3].IntegerValue })
-	parser.AddParserRule("T -> T DIV F", func(p T) {
-		if p[3].IntegerValue != 0 {
-			p[0].IntegerValue = p[1].IntegerValue / p[3].IntegerValue
+	parser.AddParserRule("S -> E NEWLINE", func(p []any) { fmt.Printf("Wynik: %d\n\n", p[1]) })
+	parser.AddParserRule("E -> E PLUS T", func(p []any) { p[0] = p[1].(int) + p[3].(int) })
+	parser.AddParserRule("E -> E MINUS T", func(p []any) { p[0] = p[1].(int) - p[3].(int) })
+	parser.AddParserRule("E -> T", func(p []any) { p[0] = p[1].(int) })
+	parser.AddParserRule("T -> T TIMES F", func(p []any) { p[0] = p[1].(int) * p[3].(int) })
+	parser.AddParserRule("T -> T DIV F", func(p []any) {
+		if p[3].(int) != 0 {
+			p[0] = p[1].(int) / p[3].(int)
+		} else {
+			p[0] = 0
 		}
 	})
-	parser.AddParserRule("T -> F", func(p T) { p[0].IntegerValue = p[1].IntegerValue })
-	parser.AddParserRule("F -> L_PAR E R_PAR", func(p T) { p[0].IntegerValue = p[2].IntegerValue })
-	parser.AddParserRule("F -> NUM", func(p T) { p[0].IntegerValue, _ = strconv.Atoi(p[1].GetStringValue()) })
+	parser.AddParserRule("T -> F", func(p []any) { p[0] = p[1].(int) })
+	parser.AddParserRule("F -> L_PAR E R_PAR", func(p []any) { p[0] = p[2].(int) })
+	parser.AddParserRule("F -> NUM", func(p []any) { p[0], _ = strconv.Atoi(p[1].(string)) })
 
 	parsergen.GenerateParser()
 

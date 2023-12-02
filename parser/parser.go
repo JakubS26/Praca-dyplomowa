@@ -15,32 +15,34 @@ import (
 
 // Inna nazwa: Stack item
 type Object struct {
-	id           int
-	IntegerValue int
-	StringValue  string
-	//Value        interface{}
+	id    int
+	Value any
 }
 
-func (o Object) GetIntegerValue() int {
-	return o.IntegerValue
-}
+// func (o Object) GetIntegerValue() int {
+// 	return o.IntegerValue
+// }
 
-func (o Object) GetStringValue() string {
-	return o.StringValue
-}
+// func (o Object) GetStringValue() string {
+// 	return o.StringValue
+// }
 
-func (o *Object) SetIntegerValue(i int) {
-	o.IntegerValue = i
-}
+// func (o *Object) SetIntegerValue(i int) {
+// 	o.IntegerValue = i
+// }
 
-func (o *Object) SetStringValue(s string) {
-	o.StringValue = s
+// func (o *Object) SetStringValue(s string) {
+// 	o.StringValue = s
+// }
+
+func (o *Object) setValue(s any) {
+	o.Value = s
 }
 
 type ParserRule struct {
 	leftHandSide  int
 	rightHandSide []int
-	action        func([]Object)
+	action        func([]any)
 }
 
 // Funkcja tylko do tesów to do celów debugowania
@@ -69,7 +71,7 @@ func GetSymbolName(id int) string {
 	return "Unknown symbol!"
 }
 
-func CreateParserRule(leftHandSide int, rightHandSide []int, action func([]Object)) ParserRule {
+func CreateParserRule(leftHandSide int, rightHandSide []int, action func([]any)) ParserRule {
 	return ParserRule{leftHandSide, rightHandSide, action}
 }
 
@@ -110,7 +112,7 @@ func GetNumberOfGrammarSymbols() int {
 	return len(lexer.GetTokenNames()) + len(nonTerminalNames) + 1
 }
 
-func toParserRule(s string, tokenNames map[string]int, action func([]Object)) (ParserRule, error) {
+func toParserRule(s string, tokenNames map[string]int, action func([]any)) (ParserRule, error) {
 
 	splitStrings := strings.Split(s, " ")
 	splitStringsClear := make([]string, 0, 5)
@@ -209,7 +211,7 @@ func GetEndOfInputSymbolId() int {
 	return len(lexer.GetTokenNames())
 }
 
-func AddParserRule(s string, action func([]Object)) error {
+func AddParserRule(s string, action func([]any)) error {
 
 	result, err := toParserRule(s, lexer.GetTokenNames(), action)
 
@@ -293,7 +295,7 @@ func ParseWithSemanticActions() {
 	tok, a, _ := lexer.NextTokenWithId()
 
 	//Na stosie stan początkowy
-	ActionS.Push(Object{0, 0, ""})
+	ActionS.Push(Object{0, nil})
 
 	for true {
 
@@ -305,9 +307,7 @@ func ParseWithSemanticActions() {
 		} else if string(parsingTable[s.id][a][0]) == "s" {
 
 			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])
-			ActionS.Push(Object{t, 0, tok.GetMatchedText()})
-			//fmt.Println(t, tok.GetMatchedText())
-			//fmt.Println("Wykonano przesunięcie: ", parsingTable[s.id][a])
+			ActionS.Push(Object{t, tok.GetMatchedText()})
 			tok, a, _ = lexer.NextTokenWithId()
 
 		} else if string(parsingTable[s.id][a][0]) == "r" {
@@ -315,15 +315,16 @@ func ParseWithSemanticActions() {
 			n, _ := strconv.Atoi(parsingTable[s.id][a][1:])
 			symbolsToPop := len(rules[n].rightHandSide)
 
-			semanticValues := make([]Object, 0, symbolsToPop+1)
-			semanticValues = append(semanticValues, Object{})
-			semanticValues = append(semanticValues, ActionS.TopSubStack(symbolsToPop)...)
+			semanticValues := make([]any, symbolsToPop+1)
+			valuesFromStack := ActionS.TopSubStack(symbolsToPop)
 
-			//fmt.Println(semanticValues)
+			for i := 1; i <= symbolsToPop; i++ {
+				semanticValues[i] = valuesFromStack[i-1].Value
+			}
 
-			rules[n].action(semanticValues)
-
-			//fmt.Println(semanticValues)
+			if rules[n].action != nil {
+				rules[n].action(semanticValues)
+			}
 
 			for i := 1; i <= symbolsToPop; i++ {
 				ActionS.Pop()
@@ -332,13 +333,9 @@ func ParseWithSemanticActions() {
 			t, _ := ActionS.Peek()
 			A := rules[n].leftHandSide
 			gotoSymbol, _ := strconv.Atoi(parsingTable[t.id][A])
-			ActionS.Push(Object{gotoSymbol, semanticValues[0].IntegerValue, semanticValues[0].StringValue})
-			//ActionS.Push(Object{gotoSymbol, 0, ""})
-
-			//fmt.Println("Wykonano redukcję: ", parsingTable[s.id][a])
+			ActionS.Push(Object{gotoSymbol, semanticValues[0]})
 
 		} else if string(parsingTable[s.id][a][0]) == "a" {
-			//fmt.Println("Parsowanie zakończone")
 			break
 		}
 

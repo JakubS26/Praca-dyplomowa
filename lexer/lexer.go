@@ -28,12 +28,19 @@ var nextTokenId int = 0
 var tokenDefinitions []TokenDefinition
 var compiledRegexes []*regexp.Regexp
 
+var ignoreRegexes []string
+var ignoreCompiledRegexes []*regexp.Regexp
+
 var fileBuffer []byte
 
 func AddTokenDefinition(name, regex string) {
 	tokenDefinitions = append(tokenDefinitions, TokenDefinition{name, regex})
 	tokenNames[name] = nextTokenId
 	nextTokenId++
+}
+
+func Ignore(regex string) {
+	ignoreRegexes = append(ignoreRegexes, regex)
 }
 
 func PrintTokens() {
@@ -72,6 +79,8 @@ func Init() error {
 		return errors.New("The set of tokens cannot be empty!")
 	}
 
+	// Sprawdzamy definicje tokenów
+
 	for i := range tokenDefinitions {
 
 		if len(tokenDefinitions[i].name) == 0 {
@@ -99,6 +108,25 @@ func Init() error {
 		re.Longest()
 	}
 
+	// Sprawdzamy wyrażenia regularne dla ignorowanych ciągów znaków
+
+	for i := range ignoreRegexes {
+
+		compiledRegex, err := regexp.Compile(ignoreRegexes[i])
+
+		if err != nil {
+			return errors.New(fmt.Sprintf("Couldn't compile regular expression for ignored token. \"%v\" is not a valid regular expression!",
+				tokenDefinitions[i].regex))
+		}
+
+		ignoreCompiledRegexes = append(ignoreCompiledRegexes, compiledRegex)
+
+	}
+
+	for _, re := range ignoreCompiledRegexes {
+		re.Longest()
+	}
+
 	return nil
 }
 
@@ -106,28 +134,28 @@ func PrintToken(tok Token) {
 	fmt.Printf("{%v, %q}\n", tok.name, tok.matchedText)
 }
 
-func NextToken() (Token, error) {
-	var matchedText string
-	var matchedLoc []int
+// func NextToken() (Token, error) {
+// 	var matchedText string
+// 	var matchedLoc []int
 
-	if len(fileBuffer) == 0 {
-		return Token{"", ""}, errors.New("End of input.")
-	}
+// 	if len(fileBuffer) == 0 {
+// 		return Token{"", ""}, errors.New("End of input.")
+// 	}
 
-	for i, re := range compiledRegexes {
-		matchedLoc = re.FindIndex(fileBuffer)
+// 	for i, re := range compiledRegexes {
+// 		matchedLoc = re.FindIndex(fileBuffer)
 
-		if matchedLoc != nil && matchedLoc[0] == 0 {
-			matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
-			fileBuffer = fileBuffer[matchedLoc[1]:]
-			return Token{tokenDefinitions[i].name, matchedText}, nil
-		}
+// 		if matchedLoc != nil && matchedLoc[0] == 0 {
+// 			matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
+// 			fileBuffer = fileBuffer[matchedLoc[1]:]
+// 			return Token{tokenDefinitions[i].name, matchedText}, nil
+// 		}
 
-	}
+// 	}
 
-	fmt.Println("The lexer was not able to match given input!")
-	return Token{"", ""}, errors.New("The lexer was not able to match given input!")
-}
+// 	fmt.Println("The lexer was not able to match given input!")
+// 	return Token{"", ""}, errors.New("The lexer was not able to match given input!")
+// }
 
 func NextTokenWithId() (Token, int, error) {
 	var matchedText string
@@ -137,18 +165,32 @@ func NextTokenWithId() (Token, int, error) {
 		return Token{"", ""}, len(tokenDefinitions), errors.New("End of input.")
 	}
 
-	for i, re := range compiledRegexes {
-		matchedLoc = re.FindIndex(fileBuffer)
+	ignored := true
 
-		if matchedLoc != nil && matchedLoc[0] == 0 {
-			matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
-			fileBuffer = fileBuffer[matchedLoc[1]:]
-			//fmt.Println(Token{tokenDefinitions[i].name, matchedText}, i)
-			return Token{tokenDefinitions[i].name, matchedText}, i, nil
+	for ignored {
+		for i, re := range compiledRegexes {
+			matchedLoc = re.FindIndex(fileBuffer)
+
+			if matchedLoc != nil && matchedLoc[0] == 0 {
+				matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
+				fileBuffer = fileBuffer[matchedLoc[1]:]
+				return Token{tokenDefinitions[i].name, matchedText}, i, nil
+			}
+
 		}
 
+		ignored = false
+
+		for _, re := range ignoreCompiledRegexes {
+			matchedLoc = re.FindIndex(fileBuffer)
+			if matchedLoc != nil && matchedLoc[0] == 0 {
+				fileBuffer = fileBuffer[matchedLoc[1]:]
+				ignored = true
+			}
+		}
 	}
-	fmt.Println("BUFFER:", fileBuffer)
+
+	//fmt.Println("BUFFER:", fileBuffer)
 	fmt.Println("The lexer was not able to match given input!")
 	return Token{"", ""}, 0, errors.New("The lexer was not able to match given input!")
 }
