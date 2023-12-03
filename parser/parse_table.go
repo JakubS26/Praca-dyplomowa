@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func GenerateLalrParseTables(automatonTransitions [][]automatonTransition,
+func generateLalrParseTables(automatonTransitions [][]automatonTransition,
 	lookaheadSets map[stateProductionPair][]int, rules []ParserRule, lr0ItemSetCollection [][]lr0Item,
 	endOfInputSymbolId int, startingSymbolIndex int, numberOfGrammarSymbols int) ([][]string, error) {
 

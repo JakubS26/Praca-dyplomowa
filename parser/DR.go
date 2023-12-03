@@ -5,7 +5,7 @@ type stateSymbolPair struct {
 	symbol int
 }
 
-func GenerateDrSets(minNonterminalSymbol int, autTransitions [][]automatonTransition) map[stateSymbolPair][]int {
+func generateDrSets(minNonterminalSymbol int, autTransitions [][]automatonTransition) map[stateSymbolPair][]int {
 	result := make(map[stateSymbolPair][]int)
 
 	//Przeszukujemy wszystkie możliwe przejścia z danego stanu

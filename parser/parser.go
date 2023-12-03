@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"goparser/lexer"
-	"strconv"
 	"strings"
 	"unicode"
 )
@@ -13,12 +12,12 @@ import (
 //(np. 0-10 terminale (te same co w lekserze) 11-14 nieterminale)
 
 // Inna nazwa: Stack item
-type Object struct {
+type object struct {
 	id    int
 	Value any
 }
 
-func (o *Object) setValue(s any) {
+func (o *object) setValue(s any) {
 	o.Value = s
 }
 
@@ -74,8 +73,7 @@ func (p ParserRule) getLeftHandSideSymbol() int {
 	return p.leftHandSide
 }
 
-var S Stack[int]
-var ActionS Stack[Object]
+var actionStack Stack[object]
 
 func checkNonterminalName(s string) bool {
 
@@ -222,72 +220,3 @@ func RaiseError(err error) {
 }
 
 var tablesGenerated bool = false
-
-func Parse() error {
-
-	if !tablesGenerated {
-		GenerateParser()
-	}
-
-	//Pobieramy pierwszy token
-	tok, a, _ := lexer.NextToken()
-
-	//Na stosie stan początkowy
-	ActionS.Push(Object{0, nil})
-
-	for true {
-
-		s, _ := ActionS.Peek()
-
-		if parsingTable[s.id][a] == "" {
-			return errors.New("Syntax error!")
-		} else if string(parsingTable[s.id][a][0]) == "s" {
-
-			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])
-			ActionS.Push(Object{t, tok.GetMatchedText()})
-			tok, a, _ = lexer.NextToken()
-
-		} else if string(parsingTable[s.id][a][0]) == "r" {
-
-			parsingError = nil
-
-			n, _ := strconv.Atoi(parsingTable[s.id][a][1:])
-			symbolsToPop := len(rules[n].rightHandSide)
-
-			semanticValues := make([]any, symbolsToPop+1)
-			valuesFromStack := ActionS.TopSubStack(symbolsToPop)
-
-			for i := 1; i <= symbolsToPop; i++ {
-				semanticValues[i] = valuesFromStack[i-1].Value
-			}
-
-			if rules[n].action != nil {
-				rules[n].action(semanticValues)
-			}
-
-			for i := 1; i <= symbolsToPop; i++ {
-				ActionS.Pop()
-			}
-
-			t, _ := ActionS.Peek()
-			A := rules[n].leftHandSide
-
-			if parsingTable[t.id][A] == "" {
-				return errors.New("Syntax error!")
-			}
-
-			gotoSymbol, _ := strconv.Atoi(parsingTable[t.id][A])
-			ActionS.Push(Object{gotoSymbol, semanticValues[0]})
-
-			if parsingError != nil {
-				return parsingError
-			}
-
-		} else if string(parsingTable[s.id][a][0]) == "a" {
-			break
-		}
-
-	}
-
-	return nil
-}

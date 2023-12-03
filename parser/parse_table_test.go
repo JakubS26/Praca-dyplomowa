@@ -67,23 +67,23 @@ func TestParseTables(t *testing.T) {
 
 	transitions := [][]automatonTransition{
 		{
-			CreateAutomatonTransition(0, 1, 3),
-			CreateAutomatonTransition(0, 2, 4),
-			CreateAutomatonTransition(0, 3, 0),
-			CreateAutomatonTransition(0, 4, 1),
+			createAutomatonTransition(0, 1, 3),
+			createAutomatonTransition(0, 2, 4),
+			createAutomatonTransition(0, 3, 0),
+			createAutomatonTransition(0, 4, 1),
 		},
 		{
-			CreateAutomatonTransition(1, 7, 2),
+			createAutomatonTransition(1, 7, 2),
 		},
 		{
-			CreateAutomatonTransition(2, 3, 0),
-			CreateAutomatonTransition(2, 4, 1),
-			CreateAutomatonTransition(2, 5, 4),
+			createAutomatonTransition(2, 3, 0),
+			createAutomatonTransition(2, 4, 1),
+			createAutomatonTransition(2, 5, 4),
 		},
 		{
-			CreateAutomatonTransition(3, 3, 0),
-			CreateAutomatonTransition(3, 4, 1),
-			CreateAutomatonTransition(3, 6, 4),
+			createAutomatonTransition(3, 3, 0),
+			createAutomatonTransition(3, 4, 1),
+			createAutomatonTransition(3, 6, 4),
 		},
 		{},
 		{},
@@ -98,7 +98,7 @@ func TestParseTables(t *testing.T) {
 		{5, 1}: {2},       //$
 	}
 
-	result, _ := GenerateLalrParseTables(transitions, lookaheadSets, productions, lr0SetCollection, endOfInputSymbolIndex, startingSymbolIndex, numberOfSymbols)
+	result, _ := generateLalrParseTables(transitions, lookaheadSets, productions, lr0SetCollection, endOfInputSymbolIndex, startingSymbolIndex, numberOfSymbols)
 
 	fmt.Print(" ")
 

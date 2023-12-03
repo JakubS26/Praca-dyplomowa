@@ -35,7 +35,7 @@ type automatonTransition struct {
 	symbol      int
 }
 
-func CreateAutomatonTransition(source int, dest int, symbol int) automatonTransition {
+func createAutomatonTransition(source int, dest int, symbol int) automatonTransition {
 	return automatonTransition{source, dest, symbol}
 }
 
@@ -87,7 +87,7 @@ func (I lr0Item) print() {
 
 }
 
-func Print(I lr0ItemSet) {
+func print(I lr0ItemSet) {
 	for _, item := range I {
 		item.print()
 		fmt.Println("  ")
@@ -153,11 +153,11 @@ func isElement(I lr0ItemSet, C []lr0ItemSet) (bool, int) {
 
 }
 
-func GetTransitions() [][]automatonTransition {
+func getTransitions() [][]automatonTransition {
 	return transitions
 }
 
-func CreateLr0ItemSets() []lr0ItemSet {
+func createLr0ItemSets() []lr0ItemSet {
 
 	// Uzupełniamy gramatykę o nowy symbol startowy (dodajemy regułę S' -> .S)
 

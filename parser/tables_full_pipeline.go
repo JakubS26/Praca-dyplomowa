@@ -1,19 +1,19 @@
 package parser
 
-func GenerateParser() {
+func generateParser() {
 
-	C := CreateLr0ItemSets()
+	C := createLr0ItemSets()
 	_ = C
 
-	transitions := GetTransitions()
+	transitions := getTransitions()
 
 	// Wyznaczamy zbiory DR
 
-	drSets := GenerateDrSets(getMinimalNonTerminalIndex(), transitions)
+	drSets := generateDrSets(getMinimalNonTerminalIndex(), transitions)
 
 	// Wyznaczamy zbiór terminali, z których można wyprowadzić słowo puste
 
-	nullableSymbols := FindNullable(getParserRules())
+	nullableSymbols := findNullable(getParserRules())
 
 	// Wyznaczamy relację reads
 
@@ -50,9 +50,10 @@ func GenerateParser() {
 
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
-	result, _ := GenerateLalrParseTables(transitions, lookaheadSets, rules, C,
+	result, _ := generateLalrParseTables(transitions, lookaheadSets, rules, C,
 		getEndOfInputSymbolId(), getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols())
 
+	tablesGenerated = true
 	setParseTable(result)
 
 }
