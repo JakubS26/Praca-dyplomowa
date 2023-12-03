@@ -1,4 +1,4 @@
-package parsergen
+package parser
 
 func generateLookaheadSets(lookbackRelation map[stateProductionPair][]stateSymbolPair,
 	followSets map[stateSymbolPair][]int) map[stateProductionPair][]int {

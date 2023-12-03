@@ -1,4 +1,4 @@
-package parsergen
+package parser
 
 type stateSymbolPair struct {
 	state  int

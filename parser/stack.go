@@ -1,5 +1,4 @@
 package parser
-
 import (
 	"errors"
 	"fmt"
@@ -24,6 +23,15 @@ func (S *Stack[T]) Pop() (T, error) {
 	}
 	value = S.data[len(S.data)-1]
 	S.data = S.data[:len(S.data)-1]
+	return value, nil
+}
+
+func (S *Stack[T]) Top() (T, error) {
+	var value T
+	if len(S.data) == 0 {
+		return value, errors.New("The stack is empty!")
+	}
+	value = S.data[len(S.data)-1]
 	return value, nil
 }
 

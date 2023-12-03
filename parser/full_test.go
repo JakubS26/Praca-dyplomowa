@@ -1,9 +1,8 @@
-package parsergen
+package parser
 
 import (
 	"fmt"
 	"goparser/lexer"
-	"goparser/parser"
 	"testing"
 )
 
@@ -14,9 +13,9 @@ func TestFull(t *testing.T) {
 
 	lexer.Init()
 
-	parser.AddParserRule("S -> C C", nil)
-	parser.AddParserRule("C -> c C", nil)
-	parser.AddParserRule("C -> d", nil)
+	AddParserRule("S -> C C", nil)
+	AddParserRule("C -> c C", nil)
+	AddParserRule("C -> d", nil)
 
 	C := CreateLr0ItemSets()
 	_ = C
@@ -31,44 +30,44 @@ func TestFull(t *testing.T) {
 
 	for _, x := range transitions {
 		for _, y := range x {
-			fmt.Println(y.GetSourceState(), "  ", parser.GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
+			fmt.Println(y.GetSourceState(), "  ", GetSymbolName(y.GetSymbol()), "  ", y.GetDestState())
 		}
 	}
 
 	// Wyznaczamy zbiory DR
 
-	drSets := GenerateDrSets(parser.GetMinimalNonTerminalIndex())
+	drSets := GenerateDrSets(GetMinimalNonTerminalIndex())
 
 	// Wyznaczamy zbiór terminali, z których można wyprowadzić słowo puste
 
-	nullableSymbols := FindNullable(parser.GetParserRules())
+	nullableSymbols := FindNullable(GetParserRules())
 
 	// Wyznaczamy relację reads
 
-	readsRelation := generateReadsRelation(transitions, nullableSymbols, parser.GetMinimalNonTerminalIndex())
+	readsRelation := generateReadsRelation(transitions, nullableSymbols, GetMinimalNonTerminalIndex())
 
 	// Za pomocą relacji reads i zbiorów DR wyznaczamy zbiory Read
 
-	readSets := digraphAlgorithm(drSets, readsRelation, parser.GetMinimalNonTerminalIndex(), parser.GetNumberOfGrammarSymbols()-1, len(transitions))
+	readSets := digraphAlgorithm(drSets, readsRelation, GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols()-1, len(transitions))
 
 	// Wyznaczamy relację includes
 
 	nonterminalCheck := func(id int) bool {
-		if id >= parser.GetMinimalNonTerminalIndex() && id <= parser.GetNumberOfGrammarSymbols()-1 {
+		if id >= GetMinimalNonTerminalIndex() && id <= GetNumberOfGrammarSymbols()-1 {
 			return true
 		}
 		return false
 	}
 
-	includesRelation := generateIncludesRelation(transitions, nullableSymbols, parser.GetParserRules(), nonterminalCheck)
+	includesRelation := generateIncludesRelation(transitions, nullableSymbols, GetParserRules(), nonterminalCheck)
 
 	// Za pomocą relacji includes i zbiorów Read wyznaczamy zbiory Follow
 
-	followSets := digraphAlgorithm(readSets, includesRelation, parser.GetMinimalNonTerminalIndex(), parser.GetNumberOfGrammarSymbols()-1, len(transitions))
+	followSets := digraphAlgorithm(readSets, includesRelation, GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols()-1, len(transitions))
 
 	// Wyznaczamy relację lookback
 
-	lookbackRelation := generateLookbackRelation(transitions, parser.GetParserRules())
+	lookbackRelation := generateLookbackRelation(transitions, GetParserRules())
 
 	// Za pomocą realcji lookback oraz zbiorów Follow wyznaczamy zbiory LA
 
@@ -79,18 +78,18 @@ func TestFull(t *testing.T) {
 	for key, value := range lookaheadSets {
 		fmt.Println("State:", key.state, "Rule number:", key.productionId)
 		for _, symbol := range value {
-			fmt.Println(parser.GetSymbolName(symbol))
+			fmt.Println(GetSymbolName(symbol))
 		}
 	}
 
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
 	result, _ := GenerateLalrParseTables(transitions, lookaheadSets, rules, C,
-		parser.GetEndOfInputSymbolId(), parser.GetMinimalNonTerminalIndex(), parser.GetNumberOfGrammarSymbols())
+		GetEndOfInputSymbolId(), GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols())
 
 	fmt.Print(" ")
-	for i := 0; i < parser.GetNumberOfGrammarSymbols(); i++ {
-		fmt.Printf("%5.5s", parser.GetSymbolName(i))
+	for i := 0; i < GetNumberOfGrammarSymbols(); i++ {
+		fmt.Printf("%5.5s", GetSymbolName(i))
 	}
 	fmt.Println()
 
@@ -102,11 +101,11 @@ func TestFull(t *testing.T) {
 		fmt.Println()
 	}
 
-	parser.SetParseTable(result)
+	SetParseTable(result)
 
 	sampleInput := "ccdcd"
 
 	lexer.SetInputString(sampleInput)
-	parser.Parse()
+	Parse()
 
 }

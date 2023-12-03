@@ -1,6 +1,4 @@
-package parsergen
-
-import "goparser/parser"
+package parser
 
 type stateProductionPair struct {
 	state        int
@@ -8,7 +6,7 @@ type stateProductionPair struct {
 }
 
 func generateLookbackRelation(automatonTransitions [][]automatonTransition,
-	rules []parser.ParserRule) map[stateProductionPair][]stateSymbolPair {
+	rules []ParserRule) map[stateProductionPair][]stateSymbolPair {
 
 	result := make(map[stateProductionPair][]stateSymbolPair)
 

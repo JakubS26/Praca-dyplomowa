@@ -1,8 +1,7 @@
-package parsergen
+package parser
 
 import (
 	"fmt"
-	"goparser/parser"
 	"reflect"
 )
 
@@ -11,12 +10,12 @@ import (
 // oznacza pozycję znacznika (kropki) w tej produkcji. Na przykład pozycja kropki 0 oznacza, że
 // znajduje się ona przed elementem tablcy 0 (na samym początku produkcji).
 
-var rules []parser.ParserRule
+//var rules []ParserRule
 
 //var minimalNonTerminalIndex = parser.GetMinimalNonTerminalIndex()
 
 func isNonTerminal(index int) bool {
-	if index >= parser.GetMinimalNonTerminalIndex() {
+	if index >= GetMinimalNonTerminalIndex() {
 		return true
 	} else {
 		return false
@@ -55,7 +54,7 @@ func (at automatonTransition) GetSymbol() int {
 var transitions [][]automatonTransition
 
 var itemSets []lr0ItemSet
-var numberOfSymbols int = parser.GetNumberOfGrammarSymbols()
+var numberOfSymbols int = GetNumberOfGrammarSymbols()
 
 func (I lr0Item) isComplete() bool {
 	if rules[I.ruleNumber].GetRightHandSideLength() == I.markerLocation {
@@ -66,7 +65,7 @@ func (I lr0Item) isComplete() bool {
 
 func (I lr0Item) print() {
 
-	name := parser.GetSymbolName(rules[I.ruleNumber].GetLeftHandSideSymbol())
+	name := GetSymbolName(rules[I.ruleNumber].GetLeftHandSideSymbol())
 	fmt.Print(name)
 
 	fmt.Print(" -> ")
@@ -77,7 +76,7 @@ func (I lr0Item) print() {
 			fmt.Print(" . ")
 		}
 
-		name = parser.GetSymbolName(rules[I.ruleNumber].GetRightHandSideSymbol(i))
+		name = GetSymbolName(rules[I.ruleNumber].GetRightHandSideSymbol(i))
 		fmt.Print(name, " ")
 
 	}
@@ -162,8 +161,8 @@ func CreateLr0ItemSets() []lr0ItemSet {
 
 	// Uzupełniamy gramatykę o nowy symbol startowy (dodajemy regułę S' -> .S)
 
-	rules = parser.GetParserRules()
-	rules = append(rules, parser.CreateParserRule(-1, []int{parser.GetMinimalNonTerminalIndex(), parser.GetEndOfInputSymbolId()}, nil))
+	rules = GetParserRules()
+	rules = append(rules, CreateParserRule(-1, []int{GetMinimalNonTerminalIndex(), GetEndOfInputSymbolId()}, nil))
 
 	//fmt.Println("End of input symbol id: ", parser.GetEndOfInputSymbolId())
 
@@ -179,7 +178,7 @@ func CreateLr0ItemSets() []lr0ItemSet {
 	C = append(C, closure([]lr0Item{firstItem}))
 
 	for i := 0; i < len(C); i++ {
-		for j := 0; j < parser.GetNumberOfGrammarSymbols(); j++ {
+		for j := 0; j < GetNumberOfGrammarSymbols(); j++ {
 
 			gotoResult := gotoFunction(C[i], j)
 

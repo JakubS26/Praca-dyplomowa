@@ -1,6 +1,4 @@
-package parsergen
-
-import "goparser/parser"
+package parser
 
 // Zwraca stan, w którym znajdziemy się, gdy wczytamy dany ciąg symboli z obecnego stanu
 // (Jeśli brak takiej ścieżki w automacie, zwraca -1)
@@ -29,7 +27,7 @@ func readSymbolsFromState(automatonTransitions [][]automatonTransition, state in
 }
 
 func generateIncludesRelation(automatonTransitions [][]automatonTransition, nullableSymbols map[int]struct{},
-	rules []parser.ParserRule, isNonterminalCheck func(int) bool) map[stateSymbolPair][]stateSymbolPair {
+	rules []ParserRule, isNonterminalCheck func(int) bool) map[stateSymbolPair][]stateSymbolPair {
 
 	result := make(map[stateSymbolPair][]stateSymbolPair)
 

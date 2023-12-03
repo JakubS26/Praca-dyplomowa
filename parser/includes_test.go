@@ -1,7 +1,6 @@
-package parsergen
+package parser
 
 import (
-	"goparser/parser"
 	"testing"
 )
 
@@ -39,10 +38,10 @@ func TestIncludes(t *testing.T) {
 		{},
 	}
 
-	productions := []parser.ParserRule{
-		parser.CreateParserRule(id['A'], []int{id['a'], id['b'], id['C'], id['E']}, nil),
-		parser.CreateParserRule(id['A'], []int{id['c'], id['B'], id['C']}, nil),
-		parser.CreateParserRule(id['E'], []int{}, nil),
+	productions := []ParserRule{
+		CreateParserRule(id['A'], []int{id['a'], id['b'], id['C'], id['E']}, nil),
+		CreateParserRule(id['A'], []int{id['c'], id['B'], id['C']}, nil),
+		CreateParserRule(id['E'], []int{}, nil),
 	}
 
 	nullableSymbols := map[int]struct{}{

@@ -1,8 +1,7 @@
-package parsergen
+package parser
 
 import (
 	"fmt"
-	"goparser/parser"
 	"testing"
 )
 
@@ -14,11 +13,11 @@ func TestParseTables(t *testing.T) {
 	//[2] C -> cC		4 -> 0, 4
 	//[3] C -> d		4 -> 1
 
-	productions := []parser.ParserRule{
-		parser.CreateParserRule(-1, []int{3, 2}, nil),
-		parser.CreateParserRule(3, []int{4, 4}, nil),
-		parser.CreateParserRule(4, []int{0, 4}, nil),
-		parser.CreateParserRule(4, []int{1}, nil),
+	productions := []ParserRule{
+		CreateParserRule(-1, []int{3, 2}, nil),
+		CreateParserRule(3, []int{4, 4}, nil),
+		CreateParserRule(4, []int{0, 4}, nil),
+		CreateParserRule(4, []int{1}, nil),
 	}
 
 	I0 := []lr0Item{

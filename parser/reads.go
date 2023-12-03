@@ -1,10 +1,6 @@
-package parsergen
+package parser
 
-import (
-	"goparser/parser"
-)
-
-func FindNullable(rules []parser.ParserRule) map[int]struct{} {
+func FindNullable(rules []ParserRule) map[int]struct{} {
 	result := make(map[int]struct{})
 
 	change := true
@@ -78,14 +74,6 @@ func generateReadsRelation(automatonTransitions [][]automatonTransition,
 
 			if len(readsRelation) != 0 {
 				result[stateSymbolPair{state, edge.symbol}] = readsRelation
-
-				// fmt.Println()
-				// fmt.Println("STATE: ", state)
-				// fmt.Println("SYMBOL: ", parser.GetSymbolName(edge.symbol))
-				// for _, i := range readsRelation {
-				// 	fmt.Println(i.state, "   ", parser.GetSymbolName(i.symbol))
-				// }
-				// fmt.Println()
 			}
 
 		}

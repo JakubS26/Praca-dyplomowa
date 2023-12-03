@@ -1,13 +1,12 @@
-package parsergen
+package parser
 
 import (
 	"errors"
-	"goparser/parser"
 	"strconv"
 )
 
 func GenerateLalrParseTables(automatonTransitions [][]automatonTransition,
-	lookaheadSets map[stateProductionPair][]int, rules []parser.ParserRule, lr0ItemSetCollection [][]lr0Item,
+	lookaheadSets map[stateProductionPair][]int, rules []ParserRule, lr0ItemSetCollection [][]lr0Item,
 	endOfInputSymbolId int, startingSymbolIndex int, numberOfGrammarSymbols int) ([][]string, error) {
 
 	//augmentedStartingSymbolIndex := -1
