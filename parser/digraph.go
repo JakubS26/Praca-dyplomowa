@@ -58,21 +58,13 @@ func digraphAlgorithm(predefinedSets map[stateSymbolPair][]int, relation map[sta
 		F[x] = predefinedSets[x]
 
 		pairsInRelation, _ := relation[x]
-		//fmt.Println("x: ", x)
-		//fmt.Println("R: ", pairsInRelation)
 
 		for _, y := range pairsInRelation {
 			if N[y] == 0 {
 				traverse(y)
 			}
 			N[x] = minimum(N[x], N[y])
-
-			// fmt.Println("x: ", x)
-			// fmt.Println("y: ", y)
-			// fmt.Println("F(x): ", F[x])
-			// fmt.Println("F(y): ", F[y])
 			F[x] = simpleSetUnion(F[x], F[y])
-			// fmt.Println("F(x) U F(y): ", F[x])
 		}
 
 		if N[x] == d {

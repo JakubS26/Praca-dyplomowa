@@ -29,7 +29,7 @@ type ParserRule struct {
 }
 
 // Funkcja tylko do tesów to do celów debugowania
-func GetSymbolName(id int) string {
+func getSymbolName(id int) string {
 
 	for name, index := range lexer.GetTokenNames() {
 		if index == id {
@@ -54,23 +54,23 @@ func GetSymbolName(id int) string {
 	return "Unknown symbol!"
 }
 
-func CreateParserRule(leftHandSide int, rightHandSide []int, action func([]any)) ParserRule {
+func createParserRule(leftHandSide int, rightHandSide []int, action func([]any)) ParserRule {
 	return ParserRule{leftHandSide, rightHandSide, action}
 }
 
-func (p ParserRule) GetRightHandSideLength() int {
+func (p ParserRule) getRightHandSideLength() int {
 	return len(p.rightHandSide)
 }
 
-func (p ParserRule) GetRightHandSideSymbol(index int) int {
+func (p ParserRule) getRightHandSideSymbol(index int) int {
 	return p.rightHandSide[index]
 }
 
-func (p ParserRule) GetRightHandSide() []int {
+func (p ParserRule) getRightHandSide() []int {
 	return p.rightHandSide
 }
 
-func (p ParserRule) GetLeftHandSideSymbol() int {
+func (p ParserRule) getLeftHandSideSymbol() int {
 	return p.leftHandSide
 }
 
@@ -91,7 +91,7 @@ func checkNonterminalName(s string) bool {
 
 var nonTerminalNames map[string]int = make(map[string]int)
 
-func GetNumberOfGrammarSymbols() int {
+func getNumberOfGrammarSymbols() int {
 	return len(lexer.GetTokenNames()) + len(nonTerminalNames) + 1
 }
 
@@ -184,18 +184,18 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (Pars
 
 var rules []ParserRule
 
-func GetParserRules() []ParserRule {
+func getParserRules() []ParserRule {
 	return rules
 }
 
 // Zwraca pierwszy indeks (liczbę), jaki został nadany symbolowi nieterminalnemu.
 // Jest to również (zgodnie z konwencją przyjętą w tym programie) indeks symbolu
 // startowego wprowadzonej przez użytkownika gramatyki.
-func GetMinimalNonTerminalIndex() int {
+func getMinimalNonTerminalIndex() int {
 	return len(lexer.GetTokenNames()) + 1
 }
 
-func GetEndOfInputSymbolId() int {
+func getEndOfInputSymbolId() int {
 	return len(lexer.GetTokenNames())
 }
 
@@ -210,7 +210,7 @@ func AddParserRule(s string, action func([]any)) error {
 	return err
 }
 
-func SetParseTable(pt [][]string) {
+func setParseTable(pt [][]string) {
 	parsingTable = pt
 }
 

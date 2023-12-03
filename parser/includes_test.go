@@ -39,9 +39,9 @@ func TestIncludes(t *testing.T) {
 	}
 
 	productions := []ParserRule{
-		CreateParserRule(id['A'], []int{id['a'], id['b'], id['C'], id['E']}, nil),
-		CreateParserRule(id['A'], []int{id['c'], id['B'], id['C']}, nil),
-		CreateParserRule(id['E'], []int{}, nil),
+		createParserRule(id['A'], []int{id['a'], id['b'], id['C'], id['E']}, nil),
+		createParserRule(id['A'], []int{id['c'], id['B'], id['C']}, nil),
+		createParserRule(id['E'], []int{}, nil),
 	}
 
 	nullableSymbols := map[int]struct{}{
@@ -58,10 +58,4 @@ func TestIncludes(t *testing.T) {
 	result := generateIncludesRelation(automatonTransitions, nullableSymbols, productions, checkNonterminal)
 
 	_ = result
-
-	// for key, value := range result {
-	// 	fmt.Print(key)
-	// 	fmt.Println("", value)
-	// }
-
 }

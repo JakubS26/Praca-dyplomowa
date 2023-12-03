@@ -21,7 +21,7 @@ func GenerateLalrParseTables(automatonTransitions [][]automatonTransition,
 
 	for index, itemSet := range lr0ItemSetCollection {
 		for _, item := range itemSet {
-			if rules[item.ruleNumber].GetLeftHandSideSymbol() == -1 && item.markerLocation == 1 {
+			if rules[item.ruleNumber].getLeftHandSideSymbol() == -1 && item.markerLocation == 1 {
 				parseTable[index][endOfInputSymbolId] = "a"
 			}
 		}
@@ -67,7 +67,7 @@ func GenerateLalrParseTables(automatonTransitions [][]automatonTransition,
 
 			currentRule := rules[lr0Item.ruleNumber]
 
-			if lr0Item.markerLocation == currentRule.GetRightHandSideLength() && currentRule.GetLeftHandSideSymbol() != -1 {
+			if lr0Item.markerLocation == currentRule.getRightHandSideLength() && currentRule.getLeftHandSideSymbol() != -1 {
 
 				// Sprawdzamy, jaki mamy zbiór podglądów dla danej produkcji w obecnym stanie (numerem obecnego stanu jest setIndex)
 				// Dla symboli a, które należą do zbioru podglądów ustawiamy akcja[setIndex][a] = redukuj zgodnie z regułą lr0Item.ruleNumber

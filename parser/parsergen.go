@@ -15,7 +15,7 @@ import (
 //var minimalNonTerminalIndex = parser.GetMinimalNonTerminalIndex()
 
 func isNonTerminal(index int) bool {
-	if index >= GetMinimalNonTerminalIndex() {
+	if index >= getMinimalNonTerminalIndex() {
 		return true
 	} else {
 		return false
@@ -54,10 +54,10 @@ func (at automatonTransition) GetSymbol() int {
 var transitions [][]automatonTransition
 
 var itemSets []lr0ItemSet
-var numberOfSymbols int = GetNumberOfGrammarSymbols()
+var numberOfSymbols int = getNumberOfGrammarSymbols()
 
 func (I lr0Item) isComplete() bool {
-	if rules[I.ruleNumber].GetRightHandSideLength() == I.markerLocation {
+	if rules[I.ruleNumber].getRightHandSideLength() == I.markerLocation {
 		return true
 	}
 	return false
@@ -65,18 +65,18 @@ func (I lr0Item) isComplete() bool {
 
 func (I lr0Item) print() {
 
-	name := GetSymbolName(rules[I.ruleNumber].GetLeftHandSideSymbol())
+	name := getSymbolName(rules[I.ruleNumber].getLeftHandSideSymbol())
 	fmt.Print(name)
 
 	fmt.Print(" -> ")
 
-	for i := 0; i < rules[I.ruleNumber].GetRightHandSideLength(); i++ {
+	for i := 0; i < rules[I.ruleNumber].getRightHandSideLength(); i++ {
 
 		if I.markerLocation == i {
 			fmt.Print(" . ")
 		}
 
-		name = GetSymbolName(rules[I.ruleNumber].GetRightHandSideSymbol(i))
+		name = getSymbolName(rules[I.ruleNumber].getRightHandSideSymbol(i))
 		fmt.Print(name, " ")
 
 	}
@@ -105,12 +105,12 @@ func closure(I lr0ItemSet) lr0ItemSet {
 
 		currentItem := J[i]
 
-		if !currentItem.isComplete() && isNonTerminal(rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)) {
+		if !currentItem.isComplete() && isNonTerminal(rules[currentItem.ruleNumber].getRightHandSideSymbol(currentItem.markerLocation)) {
 
-			nonterminal := rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation)
+			nonterminal := rules[currentItem.ruleNumber].getRightHandSideSymbol(currentItem.markerLocation)
 
 			for j, rule := range rules {
-				if rule.GetLeftHandSideSymbol() == nonterminal && !usedProductions[j] {
+				if rule.getLeftHandSideSymbol() == nonterminal && !usedProductions[j] {
 					J = append(J, lr0Item{j, 0})
 					usedProductions[j] = true
 				}
@@ -131,7 +131,7 @@ func gotoFunction(I lr0ItemSet, symbol int) lr0ItemSet {
 
 		currentItem := I[i]
 
-		if !currentItem.isComplete() && rules[currentItem.ruleNumber].GetRightHandSideSymbol(currentItem.markerLocation) == symbol {
+		if !currentItem.isComplete() && rules[currentItem.ruleNumber].getRightHandSideSymbol(currentItem.markerLocation) == symbol {
 			J = append(J, lr0Item{currentItem.ruleNumber, currentItem.markerLocation + 1})
 		}
 
@@ -161,8 +161,8 @@ func CreateLr0ItemSets() []lr0ItemSet {
 
 	// Uzupełniamy gramatykę o nowy symbol startowy (dodajemy regułę S' -> .S)
 
-	rules = GetParserRules()
-	rules = append(rules, CreateParserRule(-1, []int{GetMinimalNonTerminalIndex(), GetEndOfInputSymbolId()}, nil))
+	rules = getParserRules()
+	rules = append(rules, createParserRule(-1, []int{getMinimalNonTerminalIndex(), getEndOfInputSymbolId()}, nil))
 
 	//fmt.Println("End of input symbol id: ", parser.GetEndOfInputSymbolId())
 
@@ -178,7 +178,7 @@ func CreateLr0ItemSets() []lr0ItemSet {
 	C = append(C, closure([]lr0Item{firstItem}))
 
 	for i := 0; i < len(C); i++ {
-		for j := 0; j < GetNumberOfGrammarSymbols(); j++ {
+		for j := 0; j < getNumberOfGrammarSymbols(); j++ {
 
 			gotoResult := gotoFunction(C[i], j)
 

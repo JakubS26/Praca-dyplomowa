@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"goparser/lexer"
 	"goparser/parser"
-	"goparser/parsergen"
 	"os"
 )
 
@@ -34,8 +33,6 @@ func main() {
 	parser.AddParserRule("F -> NOT F", func(p []any) { p[0] = !p[2].(bool) })
 	parser.AddParserRule("F -> TRUE", func(p []any) { p[0] = true })
 	parser.AddParserRule("F -> FALSE", func(p []any) { p[0] = false })
-
-	parsergen.GenerateParser()
 
 	for true {
 		reader := bufio.NewReader(os.Stdin)

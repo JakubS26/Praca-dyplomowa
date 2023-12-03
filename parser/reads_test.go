@@ -9,19 +9,19 @@ func TestIsNullable1(t *testing.T) {
 	rules := make([]ParserRule, 0)
 
 	// A -> B C D
-	rules = append(rules, CreateParserRule(0, []int{1, 2, 3}, nil))
+	rules = append(rules, createParserRule(0, []int{1, 2, 3}, nil))
 	// B -> E F
-	rules = append(rules, CreateParserRule(1, []int{4, 5}, nil))
+	rules = append(rules, createParserRule(1, []int{4, 5}, nil))
 	// E -> D x
-	rules = append(rules, CreateParserRule(4, []int{3, 6}, nil))
+	rules = append(rules, createParserRule(4, []int{3, 6}, nil))
 	// F -> epsilon
-	rules = append(rules, CreateParserRule(5, []int{}, nil))
+	rules = append(rules, createParserRule(5, []int{}, nil))
 	// C -> D D D
-	rules = append(rules, CreateParserRule(2, []int{3, 3, 3}, nil))
+	rules = append(rules, createParserRule(2, []int{3, 3, 3}, nil))
 	// D -> epsilon
-	rules = append(rules, CreateParserRule(3, []int{}, nil))
+	rules = append(rules, createParserRule(3, []int{}, nil))
 	// G -> D D x D D
-	rules = append(rules, CreateParserRule(7, []int{3, 3, 6, 3, 3}, nil))
+	rules = append(rules, createParserRule(7, []int{3, 3, 6, 3, 3}, nil))
 
 	result := FindNullable(rules)
 
@@ -49,11 +49,11 @@ func TestIsNullable2(t *testing.T) {
 	rules := make([]ParserRule, 0)
 
 	// A -> B B B B B
-	rules = append(rules, CreateParserRule(0, []int{1, 1, 1, 1, 1}, nil))
+	rules = append(rules, createParserRule(0, []int{1, 1, 1, 1, 1}, nil))
 	// B -> C C
-	rules = append(rules, CreateParserRule(1, []int{2, 2}, nil))
+	rules = append(rules, createParserRule(1, []int{2, 2}, nil))
 	// C -> epsilon
-	rules = append(rules, CreateParserRule(2, []int{}, nil))
+	rules = append(rules, createParserRule(2, []int{}, nil))
 
 	result := FindNullable(rules)
 

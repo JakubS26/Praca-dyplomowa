@@ -15,8 +15,8 @@ func generateLookbackRelation(automatonTransitions [][]automatonTransition,
 	for ruleIndex, rule := range rules {
 		for stateP := 0; stateP < numberOfStates; stateP++ {
 
-			A := rule.GetLeftHandSideSymbol()
-			omega := rule.GetRightHandSide()
+			A := rule.getLeftHandSideSymbol()
+			omega := rule.getRightHandSide()
 			stateQ := readSymbolsFromState(automatonTransitions, stateP, omega)
 
 			if stateQ != -1 {

@@ -14,10 +14,10 @@ func TestParseTables(t *testing.T) {
 	//[3] C -> d		4 -> 1
 
 	productions := []ParserRule{
-		CreateParserRule(-1, []int{3, 2}, nil),
-		CreateParserRule(3, []int{4, 4}, nil),
-		CreateParserRule(4, []int{0, 4}, nil),
-		CreateParserRule(4, []int{1}, nil),
+		createParserRule(-1, []int{3, 2}, nil),
+		createParserRule(3, []int{4, 4}, nil),
+		createParserRule(4, []int{0, 4}, nil),
+		createParserRule(4, []int{1}, nil),
 	}
 
 	I0 := []lr0Item{

@@ -34,8 +34,8 @@ func generateIncludesRelation(automatonTransitions [][]automatonTransition, null
 	// Przeglądamy po kolei wszystkie produkcje
 	for _, rule := range rules {
 
-		leftSymbol := rule.GetLeftHandSideSymbol()
-		rightSymbols := rule.GetRightHandSide()
+		leftSymbol := rule.getLeftHandSideSymbol()
+		rightSymbols := rule.getRightHandSide()
 
 		// Przeglądamy wszystkie symbole po prawej stronie produkcji i szukamy nieterminali
 		// Jeśli trafimy na nieterminal, sprawdzamy, czy są spełnione warunki relacji includes

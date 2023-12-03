@@ -9,38 +9,38 @@ func GenerateParser() {
 
 	// Wyznaczamy zbiory DR
 
-	drSets := GenerateDrSets(GetMinimalNonTerminalIndex())
+	drSets := GenerateDrSets(getMinimalNonTerminalIndex(), transitions)
 
 	// Wyznaczamy zbiór terminali, z których można wyprowadzić słowo puste
 
-	nullableSymbols := FindNullable(GetParserRules())
+	nullableSymbols := FindNullable(getParserRules())
 
 	// Wyznaczamy relację reads
 
-	readsRelation := generateReadsRelation(transitions, nullableSymbols, GetMinimalNonTerminalIndex())
+	readsRelation := generateReadsRelation(transitions, nullableSymbols, getMinimalNonTerminalIndex())
 
 	// Za pomocą relacji reads i zbiorów DR wyznaczamy zbiory Read
 
-	readSets := digraphAlgorithm(drSets, readsRelation, GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols()-1, len(transitions))
+	readSets := digraphAlgorithm(drSets, readsRelation, getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols()-1, len(transitions))
 
 	// Wyznaczamy relację includes
 
 	nonterminalCheck := func(id int) bool {
-		if id >= GetMinimalNonTerminalIndex() && id <= GetNumberOfGrammarSymbols()-1 {
+		if id >= getMinimalNonTerminalIndex() && id <= getNumberOfGrammarSymbols()-1 {
 			return true
 		}
 		return false
 	}
 
-	includesRelation := generateIncludesRelation(transitions, nullableSymbols, GetParserRules(), nonterminalCheck)
+	includesRelation := generateIncludesRelation(transitions, nullableSymbols, getParserRules(), nonterminalCheck)
 
 	// Za pomocą relacji includes i zbiorów Read wyznaczamy zbiory Follow
 
-	followSets := digraphAlgorithm(readSets, includesRelation, GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols()-1, len(transitions))
+	followSets := digraphAlgorithm(readSets, includesRelation, getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols()-1, len(transitions))
 
 	// Wyznaczamy relację lookback
 
-	lookbackRelation := generateLookbackRelation(transitions, GetParserRules())
+	lookbackRelation := generateLookbackRelation(transitions, getParserRules())
 
 	// Za pomocą realcji lookback oraz zbiorów Follow wyznaczamy zbiory LA
 
@@ -51,8 +51,8 @@ func GenerateParser() {
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
 	result, _ := GenerateLalrParseTables(transitions, lookaheadSets, rules, C,
-		GetEndOfInputSymbolId(), GetMinimalNonTerminalIndex(), GetNumberOfGrammarSymbols())
+		getEndOfInputSymbolId(), getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols())
 
-	SetParseTable(result)
+	setParseTable(result)
 
 }

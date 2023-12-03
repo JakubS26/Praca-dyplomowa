@@ -11,17 +11,17 @@ func FindNullable(rules []ParserRule) map[int]struct{} {
 
 		for _, rule := range rules {
 
-			_, alreadyChecked := result[rule.GetLeftHandSideSymbol()]
+			_, alreadyChecked := result[rule.getLeftHandSideSymbol()]
 
 			if alreadyChecked {
 				continue
 			}
 
-			if rule.GetRightHandSideLength() == 0 {
-				result[rule.GetLeftHandSideSymbol()] = struct{}{}
+			if rule.getRightHandSideLength() == 0 {
+				result[rule.getLeftHandSideSymbol()] = struct{}{}
 				change = true
 			} else {
-				rightHandSideSymbols := rule.GetRightHandSide()
+				rightHandSideSymbols := rule.getRightHandSide()
 				checkAll := true
 
 				for _, symbol := range rightHandSideSymbols {
@@ -30,7 +30,7 @@ func FindNullable(rules []ParserRule) map[int]struct{} {
 				}
 
 				if checkAll {
-					result[rule.GetLeftHandSideSymbol()] = struct{}{}
+					result[rule.getLeftHandSideSymbol()] = struct{}{}
 					change = true
 				}
 			}
