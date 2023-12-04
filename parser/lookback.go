@@ -6,7 +6,7 @@ type stateProductionPair struct {
 }
 
 func generateLookbackRelation(automatonTransitions [][]automatonTransition,
-	rules []ParserRule) map[stateProductionPair][]stateSymbolPair {
+	rules []parserRule) map[stateProductionPair][]stateSymbolPair {
 
 	result := make(map[stateProductionPair][]stateSymbolPair)
 

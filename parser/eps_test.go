@@ -21,6 +21,24 @@ func TestEps(t *testing.T) {
 	AddParserRule("C -> c C", nil)
 	AddParserRule("C -> epsilon", nil)
 
-	generateParser()
+	properStrings := []string{"", "aabbcc", "abc", "aaaa", "ab", "a", "b", "bc", "c"}
+
+	for _, s := range properStrings {
+		lexer.SetInputString(s)
+		err := Parse()
+		if err != nil {
+			t.Fatalf("Parsing failed for string: " + s)
+		}
+	}
+
+	improperStrings := []string{"cba", "aba", "ccccccb", "ababab"}
+
+	for _, s := range improperStrings {
+		lexer.SetInputString(s)
+		err := Parse()
+		if err == nil {
+			t.Fatalf("Parsing should have failed for string: " + s)
+		}
+	}
 
 }

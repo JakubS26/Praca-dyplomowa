@@ -16,11 +16,24 @@ func TestFull(t *testing.T) {
 	AddParserRule("C -> c C", nil)
 	AddParserRule("C -> d", nil)
 
-	generateParser()
+	properStrings := []string{"dd", "cdd", "cccccccdd", "cdcd", "cccdcccd", "cdccccd"}
 
-	sampleInput := "ccdcd"
+	for _, s := range properStrings {
+		lexer.SetInputString(s)
+		err := Parse()
+		if err != nil {
+			t.Fatalf("Parsing failed for string: " + s)
+		}
+	}
 
-	lexer.SetInputString(sampleInput)
-	Parse()
+	improperStrings := []string{"c", "cd", "cdcdc", "ddd"}
+
+	for _, s := range improperStrings {
+		lexer.SetInputString(s)
+		err := Parse()
+		if err == nil {
+			t.Fatalf("Parsing should have failed for string: " + s)
+		}
+	}
 
 }

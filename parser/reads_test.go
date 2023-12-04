@@ -6,7 +6,7 @@ import (
 
 func TestIsNullable1(t *testing.T) {
 
-	rules := make([]ParserRule, 0)
+	rules := make([]parserRule, 0)
 
 	// A -> B C D
 	rules = append(rules, createParserRule(0, []int{1, 2, 3}, nil))
@@ -46,7 +46,7 @@ func TestIsNullable1(t *testing.T) {
 
 func TestIsNullable2(t *testing.T) {
 
-	rules := make([]ParserRule, 0)
+	rules := make([]parserRule, 0)
 
 	// A -> B B B B B
 	rules = append(rules, createParserRule(0, []int{1, 1, 1, 1, 1}, nil))

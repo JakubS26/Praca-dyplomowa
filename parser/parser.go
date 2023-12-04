@@ -21,7 +21,7 @@ func (o *object) setValue(s any) {
 	o.Value = s
 }
 
-type ParserRule struct {
+type parserRule struct {
 	leftHandSide  int
 	rightHandSide []int
 	action        func([]any)
@@ -53,23 +53,23 @@ func getSymbolName(id int) string {
 	return "Unknown symbol!"
 }
 
-func createParserRule(leftHandSide int, rightHandSide []int, action func([]any)) ParserRule {
-	return ParserRule{leftHandSide, rightHandSide, action}
+func createParserRule(leftHandSide int, rightHandSide []int, action func([]any)) parserRule {
+	return parserRule{leftHandSide, rightHandSide, action}
 }
 
-func (p ParserRule) getRightHandSideLength() int {
+func (p parserRule) getRightHandSideLength() int {
 	return len(p.rightHandSide)
 }
 
-func (p ParserRule) getRightHandSideSymbol(index int) int {
+func (p parserRule) getRightHandSideSymbol(index int) int {
 	return p.rightHandSide[index]
 }
 
-func (p ParserRule) getRightHandSide() []int {
+func (p parserRule) getRightHandSide() []int {
 	return p.rightHandSide
 }
 
-func (p ParserRule) getLeftHandSideSymbol() int {
+func (p parserRule) getLeftHandSideSymbol() int {
 	return p.leftHandSide
 }
 
@@ -93,7 +93,7 @@ func getNumberOfGrammarSymbols() int {
 	return len(lexer.GetTokenNames()) + len(nonTerminalNames) + 1
 }
 
-func toParserRule(s string, tokenNames map[string]int, action func([]any)) (ParserRule, error) {
+func toParserRule(s string, tokenNames map[string]int, action func([]any)) (parserRule, error) {
 
 	splitStrings := strings.Split(s, " ")
 	splitStringsClear := make([]string, 0, 5)
@@ -111,17 +111,17 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (Pars
 	}
 
 	if len(splitStringsClear) < 3 {
-		return ParserRule{}, errors.New("This is not a valid parser rule.")
+		return parserRule{}, errors.New("This is not a valid parser rule.")
 	}
 
 	if splitStringsClear[1] != "->" {
-		return ParserRule{}, errors.New("This is not a valid parser rule.")
+		return parserRule{}, errors.New("This is not a valid parser rule.")
 	}
 
 	//Rozpatrujemy najpierw oddzielnie symbol z lewej strony produkcji
 
 	if !checkNonterminalName(splitStringsClear[0]) {
-		return ParserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", splitStringsClear[0]))
+		return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", splitStringsClear[0]))
 	} else {
 		id, foundNonTerminal := nonTerminalNames[splitStringsClear[0]]
 
@@ -172,17 +172,17 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (Pars
 			rightHandSide = append(rightHandSide, nextFreeId)
 			nextFreeId++
 		} else {
-			return ParserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", str))
+			return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", str))
 		}
 
 	}
 
-	return ParserRule{leftHandSide, rightHandSide, action}, nil
+	return parserRule{leftHandSide, rightHandSide, action}, nil
 }
 
-var rules []ParserRule
+var rules []parserRule
 
-func getParserRules() []ParserRule {
+func getParserRules() []parserRule {
 	return rules
 }
 

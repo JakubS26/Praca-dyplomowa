@@ -13,7 +13,7 @@ func TestParseTables(t *testing.T) {
 	//[2] C -> cC		4 -> 0, 4
 	//[3] C -> d		4 -> 1
 
-	productions := []ParserRule{
+	productions := []parserRule{
 		createParserRule(-1, []int{3, 2}, nil),
 		createParserRule(3, []int{4, 4}, nil),
 		createParserRule(4, []int{0, 4}, nil),

@@ -27,7 +27,7 @@ func readSymbolsFromState(automatonTransitions [][]automatonTransition, state in
 }
 
 func generateIncludesRelation(automatonTransitions [][]automatonTransition, nullableSymbols map[int]struct{},
-	rules []ParserRule, isNonterminalCheck func(int) bool) map[stateSymbolPair][]stateSymbolPair {
+	rules []parserRule, isNonterminalCheck func(int) bool) map[stateSymbolPair][]stateSymbolPair {
 
 	result := make(map[stateSymbolPair][]stateSymbolPair)
 

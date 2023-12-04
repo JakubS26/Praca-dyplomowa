@@ -1,6 +1,6 @@
 package parser
 
-func findNullable(rules []ParserRule) map[int]struct{} {
+func findNullable(rules []parserRule) map[int]struct{} {
 	result := make(map[int]struct{})
 
 	change := true

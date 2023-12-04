@@ -38,7 +38,7 @@ func TestIncludes(t *testing.T) {
 		{},
 	}
 
-	productions := []ParserRule{
+	productions := []parserRule{
 		createParserRule(id['A'], []int{id['a'], id['b'], id['C'], id['E']}, nil),
 		createParserRule(id['A'], []int{id['c'], id['B'], id['C']}, nil),
 		createParserRule(id['E'], []int{}, nil),
