@@ -5,40 +5,39 @@ import (
 	"strconv"
 )
 
-func generateLalrParseTables(automatonTransitions [][]automatonTransition,
-	lookaheadSets map[stateProductionPair][]int, rules []parserRule, lr0ItemSetCollection [][]lr0Item,
-	endOfInputSymbolId int, startingSymbolIndex int, numberOfGrammarSymbols int) ([][]string, error) {
+func (p *Parser) generateLalrParseTables(lookaheadSets map[stateProductionPair][]int) ([][]string, error) {
 
 	//augmentedStartingSymbolIndex := -1
 
-	parseTable := make([][]string, len(automatonTransitions))
+	parseTable := make([][]string, len(p.transitions))
+	//fmt.Println("LEN:", len(p.transitions))
 
 	for i := range parseTable {
-		parseTable[i] = make([]string, numberOfGrammarSymbols)
+		parseTable[i] = make([]string, p.getNumberOfGrammarSymbols())
 	}
 
 	// W opdowiednim stanie gdy widzimy symbol końca inputu, ustawiamy akcję akceptuj
 
-	for index, itemSet := range lr0ItemSetCollection {
+	for index, itemSet := range p.lr0Sets {
 		for _, item := range itemSet {
-			if rules[item.ruleNumber].getLeftHandSideSymbol() == -1 && item.markerLocation == 1 {
-				parseTable[index][endOfInputSymbolId] = "a"
+			if p.rules[item.ruleNumber].getLeftHandSideSymbol() == -1 && item.markerLocation == 1 {
+				parseTable[index][p.getEndOfInputSymbolId()] = "a"
 			}
 		}
 	}
 
 	// W tabelach parsowania ustawiamy akcję "shift" przy odpowiednich przejściach pomiędzy stanami automatu dla terminali
 
-	maxTerminalIndex := endOfInputSymbolId - 1
+	maxTerminalIndex := p.getEndOfInputSymbolId() - 1
 
-	for _, transitionsFromState := range automatonTransitions {
+	for _, transitionsFromState := range p.transitions {
 		for _, transition := range transitionsFromState {
 			i := transition.sourceState
 			j := transition.destState
 
 			a := transition.symbol
 
-			if a == endOfInputSymbolId {
+			if a == p.getEndOfInputSymbolId() {
 				continue
 			}
 
@@ -59,13 +58,13 @@ func generateLalrParseTables(automatonTransitions [][]automatonTransition,
 
 	// Ustawiamy redukcje zgodnie z produkcjami oraz zbiorami podglądów
 
-	for setIndex, lrOItemSet := range lr0ItemSetCollection {
+	for setIndex, lrOItemSet := range p.lr0Sets {
 		for _, lr0Item := range lrOItemSet {
 
 			// Sprawdzamy, czy dana sytuacja LR(0) ma znacznik (kropkę) na końcu
 			// oraz czy po lewej stronie produkcji nie mamy "dodatkowego" symbolu startowego S'
 
-			currentRule := rules[lr0Item.ruleNumber]
+			currentRule := p.rules[lr0Item.ruleNumber]
 
 			if lr0Item.markerLocation == currentRule.getRightHandSideLength() && currentRule.getLeftHandSideSymbol() != -1 {
 
@@ -90,7 +89,7 @@ func generateLalrParseTables(automatonTransitions [][]automatonTransition,
 
 	// Ustawiamy "przejście" dla odpowiednich nieterminali
 
-	for _, transitionsFromState := range automatonTransitions {
+	for _, transitionsFromState := range p.transitions {
 		for _, transition := range transitionsFromState {
 			i := transition.sourceState
 			j := transition.destState
@@ -99,7 +98,7 @@ func generateLalrParseTables(automatonTransitions [][]automatonTransition,
 
 			//Sprawdzamy, czy symbol A jest nieterminalem
 
-			if A >= endOfInputSymbolId+1 {
+			if A >= p.minimalNonTerminalIndex {
 				parseTable[i][A] = strconv.Itoa(j)
 			}
 		}

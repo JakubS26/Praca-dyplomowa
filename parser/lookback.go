@@ -5,19 +5,18 @@ type stateProductionPair struct {
 	productionId int
 }
 
-func generateLookbackRelation(automatonTransitions [][]automatonTransition,
-	rules []parserRule) map[stateProductionPair][]stateSymbolPair {
+func (p *Parser) generateLookbackRelation() map[stateProductionPair][]stateSymbolPair {
 
 	result := make(map[stateProductionPair][]stateSymbolPair)
 
-	numberOfStates := len(automatonTransitions)
+	numberOfStates := len(p.transitions)
 
-	for ruleIndex, rule := range rules {
+	for ruleIndex, rule := range p.rules {
 		for stateP := 0; stateP < numberOfStates; stateP++ {
 
 			A := rule.getLeftHandSideSymbol()
 			omega := rule.getRightHandSide()
-			stateQ := readSymbolsFromState(automatonTransitions, stateP, omega)
+			stateQ := p.readSymbolsFromState(stateP, omega)
 
 			if stateQ != -1 {
 

@@ -27,16 +27,44 @@ type parserRule struct {
 	action        func([]any)
 }
 
-// Funkcja tylko do tesów to do celów debugowania
-func getSymbolName(id int) string {
+type Parser struct {
+	nonTerminalNames        map[string]int
+	rules                   []parserRule
+	parsingTable            [][]string
+	parsingError            error
+	tablesGenerated         bool
+	transitions             [][]automatonTransition
+	lr0Sets                 []lr0ItemSet
+	lexer                   *lexer.Lexer
+	nullableSymbols         map[int]struct{}
+	endOfInputSymbolId      int
+	minimalNonTerminalIndex int
+	numberOfGrammarSymbols  int
+}
 
-	for name, index := range lexer.GetTokenNames() {
+func NewParser(lexer *lexer.Lexer) *Parser {
+	return &Parser{
+		nonTerminalNames:        make(map[string]int),
+		rules:                   make([]parserRule, 0),
+		parsingTable:            nil,
+		tablesGenerated:         false,
+		lexer:                   lexer,
+		endOfInputSymbolId:      len(lexer.GetTokenNames()),
+		minimalNonTerminalIndex: len(lexer.GetTokenNames()) + 1,
+		numberOfGrammarSymbols:  len(lexer.GetTokenNames()) + 1,
+	}
+}
+
+// Funkcja tylko do tesów do celów debugowania
+func (p *Parser) getSymbolName(id int) string {
+
+	for name, index := range p.lexer.GetTokenNames() {
 		if index == id {
 			return name
 		}
 	}
 
-	for name, index := range nonTerminalNames {
+	for name, index := range p.nonTerminalNames {
 		if index == id {
 			return name
 		}
@@ -46,7 +74,7 @@ func getSymbolName(id int) string {
 		return "S'"
 	}
 
-	if id == len(lexer.GetTokenNames()) {
+	if id == len(p.lexer.GetTokenNames()) {
 		return "$"
 	}
 
@@ -73,7 +101,7 @@ func (p parserRule) getLeftHandSideSymbol() int {
 	return p.leftHandSide
 }
 
-var actionStack Stack[object]
+//var actionStack Stack[object]
 
 func checkNonterminalName(s string) bool {
 
@@ -87,13 +115,9 @@ func checkNonterminalName(s string) bool {
 
 }
 
-var nonTerminalNames map[string]int = make(map[string]int)
+//var nonTerminalNames map[string]int = make(map[string]int)
 
-func getNumberOfGrammarSymbols() int {
-	return len(lexer.GetTokenNames()) + len(nonTerminalNames) + 1
-}
-
-func toParserRule(s string, tokenNames map[string]int, action func([]any)) (parserRule, error) {
+func (p *Parser) toParserRule(s string, tokenNames map[string]int, action func([]any), nonTerminalNames map[string]int) (parserRule, error) {
 
 	splitStrings := strings.Split(s, " ")
 	splitStringsClear := make([]string, 0, 5)
@@ -129,6 +153,7 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (pars
 			leftHandSide = id
 		} else {
 			nonTerminalNames[splitStringsClear[0]] = nextFreeId
+			p.numberOfGrammarSymbols++
 			leftHandSide = nextFreeId
 			nextFreeId++
 		}
@@ -169,6 +194,7 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (pars
 
 		if checkNonterminalName(str) {
 			nonTerminalNames[str] = nextFreeId
+			p.numberOfGrammarSymbols++
 			rightHandSide = append(rightHandSide, nextFreeId)
 			nextFreeId++
 		} else {
@@ -180,43 +206,47 @@ func toParserRule(s string, tokenNames map[string]int, action func([]any)) (pars
 	return parserRule{leftHandSide, rightHandSide, action}, nil
 }
 
-var rules []parserRule
+//var rules []parserRule
 
-func getParserRules() []parserRule {
-	return rules
+func (p *Parser) getParserRules() []parserRule {
+	return p.rules
 }
 
 // Zwraca pierwszy indeks (liczbę), jaki został nadany symbolowi nieterminalnemu.
 // Jest to również (zgodnie z konwencją przyjętą w tym programie) indeks symbolu
 // startowego wprowadzonej przez użytkownika gramatyki.
-func getMinimalNonTerminalIndex() int {
-	return len(lexer.GetTokenNames()) + 1
+func (p *Parser) getMinimalNonTerminalIndex() int {
+	return p.minimalNonTerminalIndex
 }
 
-func getEndOfInputSymbolId() int {
-	return len(lexer.GetTokenNames())
+func (p *Parser) getEndOfInputSymbolId() int {
+	return p.endOfInputSymbolId
 }
 
-func AddParserRule(s string, action func([]any)) error {
+func (p *Parser) getNumberOfGrammarSymbols() int {
+	return p.numberOfGrammarSymbols
+}
 
-	result, err := toParserRule(s, lexer.GetTokenNames(), action)
+func (p *Parser) AddParserRule(s string, action func([]any)) error {
+
+	result, err := p.toParserRule(s, p.lexer.GetTokenNames(), action, p.nonTerminalNames)
 
 	if err == nil {
-		rules = append(rules, result)
+		p.rules = append(p.rules, result)
 	}
 
 	return err
 }
 
-func setParseTable(pt [][]string) {
-	parsingTable = pt
+func (p *Parser) setParseTable(pt [][]string) {
+	p.parsingTable = pt
 }
 
-var parsingTable [][]string
-var parsingError error = nil
+// var parsingTable [][]string
+//var parsingError error = nil
 
-func RaiseError(err error) {
-	parsingError = err
+func (p *Parser) RaiseError(err error) {
+	p.parsingError = err
 }
 
-var tablesGenerated bool = false
+//var tablesGenerated bool = false

@@ -5,20 +5,20 @@ type stateSymbolPair struct {
 	symbol int
 }
 
-func generateDrSets(minNonterminalSymbol int, autTransitions [][]automatonTransition) map[stateSymbolPair][]int {
+func (p *Parser) generateDrSets() map[stateSymbolPair][]int {
 	result := make(map[stateSymbolPair][]int)
 
 	//Przeszukujemy wszystkie możliwe przejścia z danego stanu
-	for state, edges := range autTransitions {
+	for state, edges := range p.transitions {
 		for _, edge := range edges {
 
 			drSet := make([]int, 0)
 
 			//Napotkano przejście z aktualnego stanu do innego stanu z symbolem nieterminalnym
-			if edge.symbol >= minNonterminalSymbol {
+			if edge.symbol >= p.getMinimalNonTerminalIndex() {
 
-				for _, nextEdge := range autTransitions[edge.destState] {
-					if !isNonTerminal(nextEdge.symbol) {
+				for _, nextEdge := range p.transitions[edge.destState] {
+					if !isNonTerminal(nextEdge.symbol, p.getMinimalNonTerminalIndex()) {
 						drSet = append(drSet, nextEdge.symbol)
 					}
 				}

@@ -7,6 +7,8 @@ import (
 
 func TestCalc(t *testing.T) {
 
+	lexer := lexer.NewLexer()
+
 	lexer.AddTokenDefinition("NUM", `[0-9]+`)
 	lexer.AddTokenDefinition("PLUS", `\+`)
 	lexer.AddTokenDefinition("TIMES", `\*`)
@@ -15,18 +17,20 @@ func TestCalc(t *testing.T) {
 
 	lexer.Init()
 
-	AddParserRule("E -> E PLUS T", nil)
-	AddParserRule("E -> T", nil)
-	AddParserRule("T -> T TIMES F", nil)
-	AddParserRule("T -> F", nil)
-	AddParserRule("F -> L_PAR E R_PAR", nil)
-	AddParserRule("F -> NUM", nil)
+	parser := NewParser(lexer)
+
+	parser.AddParserRule("E -> E PLUS T", nil)
+	parser.AddParserRule("E -> T", nil)
+	parser.AddParserRule("T -> T TIMES F", nil)
+	parser.AddParserRule("T -> F", nil)
+	parser.AddParserRule("F -> L_PAR E R_PAR", nil)
+	parser.AddParserRule("F -> NUM", nil)
 
 	properStrings := []string{"3", "3+3", "3+3*3", "(3+3)*3", "4*4*4*4*4*4", "(5)"}
 
 	for _, s := range properStrings {
 		lexer.SetInputString(s)
-		err := Parse()
+		err := parser.Parse()
 		if err != nil {
 			t.Fatalf("Parsing failed for string: " + s)
 		}
@@ -36,7 +40,7 @@ func TestCalc(t *testing.T) {
 
 	for _, s := range improperStrings {
 		lexer.SetInputString(s)
-		err := Parse()
+		err := parser.Parse()
 		if err == nil {
 			t.Fatalf("Parsing should have failed for string: " + s)
 		}

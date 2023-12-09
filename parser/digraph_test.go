@@ -9,7 +9,7 @@ func TestSimpleSetUnion(t *testing.T) {
 	set1 := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	set2 := []int{4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
-	set3 := simpleSetUnion(set1, set2)
+	set3 := setUnion(set1, set2)
 
 	if len(set3) != 13 {
 		t.Fatalf("Wrong number of elements in result set")
@@ -48,12 +48,5 @@ func TestDigraph1(t *testing.T) {
 		minNonTerminalIndex, maxNonterminalIndex, numberOfStates)
 
 	_ = result
-
-	// for key, value := range result {
-	// 	if len(value) > 0 {
-	// 		fmt.Println(key)
-	// 		fmt.Print(value, "\n\n")
-	// 	}
-	// }
 
 }

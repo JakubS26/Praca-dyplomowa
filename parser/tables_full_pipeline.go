@@ -1,59 +1,47 @@
 package parser
 
-func generateParser() {
+func (p *Parser) generateParser() {
 
-	C := createLr0ItemSets()
-	_ = C
-
-	transitions := getTransitions()
+	p.createLr0ItemSets()
 
 	// Wyznaczamy zbiory DR
 
-	drSets := generateDrSets(getMinimalNonTerminalIndex(), transitions)
+	drSets := p.generateDrSets()
 
 	// Wyznaczamy zbiór terminali, z których można wyprowadzić słowo puste
 
-	nullableSymbols := findNullable(getParserRules())
+	p.findNullable()
 
 	// Wyznaczamy relację reads
 
-	readsRelation := generateReadsRelation(transitions, nullableSymbols, getMinimalNonTerminalIndex())
+	readsRelation := p.generateReadsRelation()
 
 	// Za pomocą relacji reads i zbiorów DR wyznaczamy zbiory Read
 
-	readSets := digraphAlgorithm(drSets, readsRelation, getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols()-1, len(transitions))
+	readSets := digraphAlgorithm(drSets, readsRelation, p.getMinimalNonTerminalIndex(), p.getNumberOfGrammarSymbols()-1, len(p.transitions))
 
 	// Wyznaczamy relację includes
 
-	nonterminalCheck := func(id int) bool {
-		if id >= getMinimalNonTerminalIndex() && id <= getNumberOfGrammarSymbols()-1 {
-			return true
-		}
-		return false
-	}
-
-	includesRelation := generateIncludesRelation(transitions, nullableSymbols, getParserRules(), nonterminalCheck)
+	includesRelation := p.generateIncludesRelation()
 
 	// Za pomocą relacji includes i zbiorów Read wyznaczamy zbiory Follow
 
-	followSets := digraphAlgorithm(readSets, includesRelation, getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols()-1, len(transitions))
+	followSets := digraphAlgorithm(readSets, includesRelation, p.getMinimalNonTerminalIndex(), p.getNumberOfGrammarSymbols()-1, len(p.transitions))
 
 	// Wyznaczamy relację lookback
 
-	lookbackRelation := generateLookbackRelation(transitions, getParserRules())
+	lookbackRelation := p.generateLookbackRelation()
 
 	// Za pomocą realcji lookback oraz zbiorów Follow wyznaczamy zbiory LA
 
 	lookaheadSets := generateLookaheadSets(lookbackRelation, followSets)
 
-	_ = lookaheadSets
-
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
-	result, _ := generateLalrParseTables(transitions, lookaheadSets, rules, C,
-		getEndOfInputSymbolId(), getMinimalNonTerminalIndex(), getNumberOfGrammarSymbols())
+	result, _ := p.generateLalrParseTables(lookaheadSets)
 
-	tablesGenerated = true
-	setParseTable(result)
+	//fmt.Println(result)
+
+	p.parsingTable = result
 
 }

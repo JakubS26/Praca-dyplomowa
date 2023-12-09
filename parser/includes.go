@@ -2,11 +2,11 @@ package parser
 
 // Zwraca stan, w którym znajdziemy się, gdy wczytamy dany ciąg symboli z obecnego stanu
 // (Jeśli brak takiej ścieżki w automacie, zwraca -1)
-func readSymbolsFromState(automatonTransitions [][]automatonTransition, state int, symbols []int) int {
+func (p *Parser) readSymbolsFromState(state int, symbols []int) int {
 
 	for _, symbol := range symbols {
 
-		transitionsFromCurrentState := automatonTransitions[state]
+		transitionsFromCurrentState := p.transitions[state]
 
 		found := false
 
@@ -26,13 +26,12 @@ func readSymbolsFromState(automatonTransitions [][]automatonTransition, state in
 	return state
 }
 
-func generateIncludesRelation(automatonTransitions [][]automatonTransition, nullableSymbols map[int]struct{},
-	rules []parserRule, isNonterminalCheck func(int) bool) map[stateSymbolPair][]stateSymbolPair {
+func (p *Parser) generateIncludesRelation() map[stateSymbolPair][]stateSymbolPair {
 
 	result := make(map[stateSymbolPair][]stateSymbolPair)
 
 	// Przeglądamy po kolei wszystkie produkcje
-	for _, rule := range rules {
+	for _, rule := range p.rules {
 
 		leftSymbol := rule.getLeftHandSideSymbol()
 		rightSymbols := rule.getRightHandSide()
@@ -41,7 +40,7 @@ func generateIncludesRelation(automatonTransitions [][]automatonTransition, null
 		// Jeśli trafimy na nieterminal, sprawdzamy, czy są spełnione warunki relacji includes
 
 		for index, symbol := range rightSymbols {
-			if isNonterminalCheck(symbol) {
+			if symbol >= p.getMinimalNonTerminalIndex() {
 
 				beta := rightSymbols[0:index]
 				gamma := rightSymbols[index+1:]
@@ -52,7 +51,7 @@ func generateIncludesRelation(automatonTransitions [][]automatonTransition, null
 				isGammaNullable := true
 
 				for _, g := range gamma {
-					_, ok := nullableSymbols[g]
+					_, ok := p.nullableSymbols[g]
 					isGammaNullable = isGammaNullable && ok
 				}
 
@@ -63,11 +62,11 @@ func generateIncludesRelation(automatonTransitions [][]automatonTransition, null
 				// Sprawdzamy warunek 2: między którymi stanami możemy przejść, wczytując ciąg symboli beta
 				// W tym celu sprawdzamy po kolei wszystkie stany
 
-				numberOfStates := len(automatonTransitions)
+				numberOfStates := len(p.transitions)
 
 				for state := 0; state < numberOfStates; state++ {
 
-					finalState := readSymbolsFromState(automatonTransitions, state, beta)
+					finalState := p.readSymbolsFromState(state, beta)
 
 					// Jeśli ścieżka odpowiadająca danemu ciągowi przejść istnieje w automacie
 					if finalState != -1 {

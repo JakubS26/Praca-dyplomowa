@@ -7,25 +7,29 @@ import (
 
 func TestEps(t *testing.T) {
 
+	lexer := lexer.NewLexer()
+
 	lexer.AddTokenDefinition("a", `a`)
 	lexer.AddTokenDefinition("b", `b`)
 	lexer.AddTokenDefinition("c", `c`)
 
 	lexer.Init()
 
-	AddParserRule("S -> A B C", nil)
-	AddParserRule("A -> a A", nil)
-	AddParserRule("A -> epsilon", nil)
-	AddParserRule("B -> b B", nil)
-	AddParserRule("B -> epsilon", nil)
-	AddParserRule("C -> c C", nil)
-	AddParserRule("C -> epsilon", nil)
+	parser := NewParser(lexer)
+
+	parser.AddParserRule("S -> A B C", nil)
+	parser.AddParserRule("A -> a A", nil)
+	parser.AddParserRule("A -> epsilon", nil)
+	parser.AddParserRule("B -> b B", nil)
+	parser.AddParserRule("B -> epsilon", nil)
+	parser.AddParserRule("C -> c C", nil)
+	parser.AddParserRule("C -> epsilon", nil)
 
 	properStrings := []string{"", "aabbcc", "abc", "aaaa", "ab", "a", "b", "bc", "c"}
 
 	for _, s := range properStrings {
 		lexer.SetInputString(s)
-		err := Parse()
+		err := parser.Parse()
 		if err != nil {
 			t.Fatalf("Parsing failed for string: " + s)
 		}
@@ -35,7 +39,7 @@ func TestEps(t *testing.T) {
 
 	for _, s := range improperStrings {
 		lexer.SetInputString(s)
-		err := Parse()
+		err := parser.Parse()
 		if err == nil {
 			t.Fatalf("Parsing should have failed for string: " + s)
 		}

@@ -22,111 +22,133 @@ func (t Token) GetMatchedText() string {
 	return t.matchedText
 }
 
-var tokenNames map[string]int = make(map[string]int)
-var nextTokenId int = 0
-
-var tokenDefinitions []TokenDefinition
-var compiledRegexes []*regexp.Regexp
-
-var ignoreRegexes []string
-var ignoreCompiledRegexes []*regexp.Regexp
-
-var fileBuffer []byte
-
-func AddTokenDefinition(name, regex string) {
-	tokenDefinitions = append(tokenDefinitions, TokenDefinition{name, regex})
-	tokenNames[name] = nextTokenId
-	nextTokenId++
+type Lexer struct {
+	tokenNames            map[string]int
+	nextTokenId           int
+	tokenDefinitions      []TokenDefinition
+	compiledRegexes       []*regexp.Regexp
+	ignoreRegexes         []string
+	ignoreCompiledRegexes []*regexp.Regexp
+	fileBuffer            []byte
+	isInitalized          bool
 }
 
-func Ignore(regex string) {
-	ignoreRegexes = append(ignoreRegexes, regex)
-}
-
-func PrintTokens() {
-	for i := range tokenDefinitions {
-		fmt.Println(tokenDefinitions[i].name, tokenDefinitions[i].regex)
+func NewLexer() *Lexer {
+	return &Lexer{
+		tokenDefinitions:      make([]TokenDefinition, 0),
+		compiledRegexes:       make([]*regexp.Regexp, 0),
+		ignoreRegexes:         make([]string, 0),
+		ignoreCompiledRegexes: make([]*regexp.Regexp, 0),
+		tokenNames:            make(map[string]int),
 	}
 }
 
-func GetTokenNames() map[string]int {
-	return tokenNames
+// var tokenNames map[string]int = make(map[string]int)
+// var nextTokenId int = 0
+
+// var tokenDefinitions []TokenDefinition
+// var compiledRegexes []*regexp.Regexp
+
+// var ignoreRegexes []string
+// var ignoreCompiledRegexes []*regexp.Regexp
+
+// var fileBuffer []byte
+
+func (l *Lexer) AddTokenDefinition(name, regex string) {
+	l.tokenDefinitions = append(l.tokenDefinitions, TokenDefinition{name, regex})
+	l.tokenNames[name] = l.nextTokenId
+	l.nextTokenId++
 }
 
-func OpenFile(fileName string) error {
+func (l *Lexer) Ignore(regex string) {
+	l.ignoreRegexes = append(l.ignoreRegexes, regex)
+}
+
+func (l *Lexer) PrintTokens() {
+	for i := range l.tokenDefinitions {
+		fmt.Println(l.tokenDefinitions[i].name, l.tokenDefinitions[i].regex)
+	}
+}
+
+func (l *Lexer) GetTokenNames() map[string]int {
+	return l.tokenNames
+}
+
+func (l *Lexer) OpenFile(fileName string) error {
 	var err error = nil
-	fileBuffer, err = os.ReadFile(fileName)
+	l.fileBuffer, err = os.ReadFile(fileName)
 
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Błąd otwierania pliku o nazwie: %v!", fileName))
+		err = errors.New(fmt.Sprintf("Can't open file: %v!", fileName))
 	}
 
 	return err
 }
 
-func SetInputString(input string) {
-	fileBuffer = []byte(input)
+func (l *Lexer) SetInputString(input string) {
+	l.fileBuffer = []byte(input)
 }
 
 // Prints file to test whether is has been properly open
-func TestPrintFile() {
-	fmt.Print(string(fileBuffer))
+func (l *Lexer) TestPrintFile() {
+	fmt.Print(string(l.fileBuffer))
 }
 
-func Init() error {
+func (l *Lexer) Init() error {
 
-	if len(tokenDefinitions) == 0 {
+	if len(l.tokenDefinitions) == 0 {
 		return errors.New("The set of tokens cannot be empty!")
 	}
 
 	// Sprawdzamy definicje tokenów
 
-	for i := range tokenDefinitions {
+	for i := range l.tokenDefinitions {
 
-		if len(tokenDefinitions[i].name) == 0 {
+		if len(l.tokenDefinitions[i].name) == 0 {
 			return errors.New("A name of a token cannot be an empty string!")
 		}
 
-		for _, c := range tokenDefinitions[i].name {
+		for _, c := range l.tokenDefinitions[i].name {
 			if !(c == '_' || (unicode.IsLetter(c) /*&& unicode.IsUpper(c)*/)) {
 				return errors.New(fmt.Sprintf("Wrong character : %q. Names of tokens can contain only capital letters and underscores!", c))
 			}
 		}
 
-		compiledRegex, err := regexp.Compile(tokenDefinitions[i].regex)
+		compiledRegex, err := regexp.Compile(l.tokenDefinitions[i].regex)
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Couldn't compile regular expression for token %v. \"%v\" is not a valid regular expression!",
-				tokenDefinitions[i].name, tokenDefinitions[i].regex))
+				l.tokenDefinitions[i].name, l.tokenDefinitions[i].regex))
 		}
 
-		compiledRegexes = append(compiledRegexes, compiledRegex)
+		l.compiledRegexes = append(l.compiledRegexes, compiledRegex)
 
 	}
 
-	for _, re := range compiledRegexes {
+	for _, re := range l.compiledRegexes {
 		re.Longest()
 	}
 
 	// Sprawdzamy wyrażenia regularne dla ignorowanych ciągów znaków
 
-	for i := range ignoreRegexes {
+	for i := range l.ignoreRegexes {
 
-		compiledRegex, err := regexp.Compile(ignoreRegexes[i])
+		compiledRegex, err := regexp.Compile(l.ignoreRegexes[i])
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Couldn't compile regular expression for ignored token. \"%v\" is not a valid regular expression!",
-				tokenDefinitions[i].regex))
+				l.tokenDefinitions[i].regex))
 		}
 
-		ignoreCompiledRegexes = append(ignoreCompiledRegexes, compiledRegex)
+		l.ignoreCompiledRegexes = append(l.ignoreCompiledRegexes, compiledRegex)
 
 	}
 
-	for _, re := range ignoreCompiledRegexes {
+	for _, re := range l.ignoreCompiledRegexes {
 		re.Longest()
 	}
 
+	l.isInitalized = true
 	return nil
 }
 
@@ -134,34 +156,35 @@ func PrintToken(tok Token) {
 	fmt.Printf("{%v, %q}\n", tok.name, tok.matchedText)
 }
 
-func NextToken() (Token, int, error) {
+func (l *Lexer) NextToken() (Token, int, error) {
+
 	var matchedText string
 	var matchedLoc []int
 
-	if len(fileBuffer) == 0 {
-		return Token{"", ""}, len(tokenDefinitions), nil
+	if len(l.fileBuffer) == 0 {
+		return Token{"", ""}, len(l.tokenDefinitions), nil
 	}
 
 	ignored := true
 
 	for ignored {
-		for i, re := range compiledRegexes {
-			matchedLoc = re.FindIndex(fileBuffer)
+		for i, re := range l.compiledRegexes {
+			matchedLoc = re.FindIndex(l.fileBuffer)
 
 			if matchedLoc != nil && matchedLoc[0] == 0 {
-				matchedText = string(fileBuffer[matchedLoc[0]:matchedLoc[1]])
-				fileBuffer = fileBuffer[matchedLoc[1]:]
-				return Token{tokenDefinitions[i].name, matchedText}, i, nil
+				matchedText = string(l.fileBuffer[matchedLoc[0]:matchedLoc[1]])
+				l.fileBuffer = l.fileBuffer[matchedLoc[1]:]
+				return Token{l.tokenDefinitions[i].name, matchedText}, i, nil
 			}
 
 		}
 
 		ignored = false
 
-		for _, re := range ignoreCompiledRegexes {
-			matchedLoc = re.FindIndex(fileBuffer)
+		for _, re := range l.ignoreCompiledRegexes {
+			matchedLoc = re.FindIndex(l.fileBuffer)
 			if matchedLoc != nil && matchedLoc[0] == 0 {
-				fileBuffer = fileBuffer[matchedLoc[1]:]
+				l.fileBuffer = l.fileBuffer[matchedLoc[1]:]
 				ignored = true
 			}
 		}

@@ -10,7 +10,7 @@ func generateLookaheadSets(lookbackRelation map[stateProductionPair][]stateSymbo
 		lookaheadSet := []int{}
 
 		for _, r := range value {
-			lookaheadSet = simpleSetUnion(lookaheadSet, followSets[r])
+			lookaheadSet = setUnion(lookaheadSet, followSets[r])
 		}
 
 		result[key] = lookaheadSet

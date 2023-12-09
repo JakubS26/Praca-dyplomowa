@@ -1,6 +1,6 @@
 package parser
 
-func findNullable(rules []parserRule) map[int]struct{} {
+func (p *Parser) findNullable() {
 	result := make(map[int]struct{})
 
 	change := true
@@ -9,7 +9,7 @@ func findNullable(rules []parserRule) map[int]struct{} {
 
 		change = false
 
-		for _, rule := range rules {
+		for _, rule := range p.rules {
 
 			_, alreadyChecked := result[rule.getLeftHandSideSymbol()]
 
@@ -39,23 +39,22 @@ func findNullable(rules []parserRule) map[int]struct{} {
 
 	}
 
-	return result
+	p.nullableSymbols = result
 }
 
-func generateReadsRelation(automatonTransitions [][]automatonTransition,
-	nullableSymbols map[int]struct{}, minNonterminalId int) map[stateSymbolPair][]stateSymbolPair {
+func (p *Parser) generateReadsRelation() map[stateSymbolPair][]stateSymbolPair {
 
 	result := make(map[stateSymbolPair][]stateSymbolPair)
 
 	checkNonterminal := func(id int) bool {
-		if id >= minNonterminalId {
+		if id >= p.getMinimalNonTerminalIndex() {
 			return true
 		}
 		return false
 	}
 
 	//Przeszukujemy wszystkie możliwe przejścia z kolejnych stanów
-	for state, edges := range automatonTransitions {
+	for state, edges := range p.transitions {
 		for _, edge := range edges {
 
 			readsRelation := make([]stateSymbolPair, 0)
@@ -63,8 +62,8 @@ func generateReadsRelation(automatonTransitions [][]automatonTransition,
 			//Napotkano przejście z aktualnego stanu do innego stanu z symbolem nieterminalnym
 			if checkNonterminal(edge.symbol) {
 
-				for _, nextEdge := range automatonTransitions[edge.destState] {
-					_, isNullable := nullableSymbols[nextEdge.symbol]
+				for _, nextEdge := range p.transitions[edge.destState] {
+					_, isNullable := p.nullableSymbols[nextEdge.symbol]
 					if isNullable {
 						readsRelation = append(readsRelation, stateSymbolPair{edge.destState, nextEdge.symbol})
 					}

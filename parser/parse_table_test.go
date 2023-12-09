@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"goparser/lexer"
 	"testing"
 )
 
@@ -92,13 +93,23 @@ func TestParseTables(t *testing.T) {
 	}
 
 	lookaheadSets := map[stateProductionPair][]int{
-		//{1, 0}: {2},       //$
 		{4, 3}: {0, 1, 2}, //c, d, $
 		{6, 2}: {0, 1, 2}, //c, d, $
 		{5, 1}: {2},       //$
+
 	}
 
-	result, _ := generateLalrParseTables(transitions, lookaheadSets, productions, lr0SetCollection, endOfInputSymbolIndex, startingSymbolIndex, numberOfSymbols)
+	p := NewParser(&lexer.Lexer{})
+
+	p.transitions = transitions
+	p.rules = productions
+	p.lr0Sets = lr0SetCollection
+
+	p.endOfInputSymbolId = endOfInputSymbolIndex
+	p.minimalNonTerminalIndex = startingSymbolIndex
+	p.numberOfGrammarSymbols = numberOfSymbols
+
+	result, _ := p.generateLalrParseTables(lookaheadSets)
 
 	fmt.Print(" ")
 
@@ -107,21 +118,17 @@ func TestParseTables(t *testing.T) {
 	_ = result
 	_ = symNames
 
-	for i := 0; i < 5; i++ {
-		fmt.Printf("%5.5s", symNames[i])
-	}
-	fmt.Println()
+	// for i := 0; i < 5; i++ {
+	// 	fmt.Printf("%5.5s", symNames[i])
+	// }
+	// fmt.Println()
 
-	for index, row := range result {
-		fmt.Print(index)
-		for _, action := range row {
-			fmt.Printf("%5.5s", action)
-		}
-		fmt.Println()
-	}
+	// for index, row := range result {
+	// 	fmt.Print(index)
+	// 	for _, action := range row {
+	// 		fmt.Printf("%5.5s", action)
+	// 	}
+	// 	fmt.Println()
+	// }
 
-}
-
-func TestHello(t *testing.T) {
-	fmt.Println("Hello, world!")
 }

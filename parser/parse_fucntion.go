@@ -2,18 +2,20 @@ package parser
 
 import (
 	"errors"
-	"goparser/lexer"
 	"strconv"
 )
 
-func Parse() error {
+func (p *Parser) Parse() error {
 
-	if !tablesGenerated {
-		generateParser()
+	var actionStack Stack[object]
+
+	if !p.tablesGenerated {
+		p.tablesGenerated = true
+		p.generateParser()
 	}
 
 	//Pobieramy pierwszy token
-	tok, a, _ := lexer.NextToken()
+	tok, a, _ := p.lexer.NextToken()
 
 	//Na stosie stan początkowy
 	actionStack.Push(object{0, nil})
@@ -22,20 +24,20 @@ func Parse() error {
 
 		s, _ := actionStack.Peek()
 
-		if parsingTable[s.id][a] == "" {
+		if p.parsingTable[s.id][a] == "" {
 			return errors.New("Syntax error!")
-		} else if string(parsingTable[s.id][a][0]) == "s" {
+		} else if string(p.parsingTable[s.id][a][0]) == "s" {
 
-			t, _ := strconv.Atoi(parsingTable[s.id][a][1:])
+			t, _ := strconv.Atoi(p.parsingTable[s.id][a][1:])
 			actionStack.Push(object{t, tok.GetMatchedText()})
-			tok, a, _ = lexer.NextToken()
+			tok, a, _ = p.lexer.NextToken()
 
-		} else if string(parsingTable[s.id][a][0]) == "r" {
+		} else if string(p.parsingTable[s.id][a][0]) == "r" {
 
-			parsingError = nil
+			p.parsingError = nil
 
-			n, _ := strconv.Atoi(parsingTable[s.id][a][1:])
-			symbolsToPop := len(rules[n].rightHandSide)
+			n, _ := strconv.Atoi(p.parsingTable[s.id][a][1:])
+			symbolsToPop := len(p.rules[n].rightHandSide)
 
 			semanticValues := make([]any, symbolsToPop+1)
 			valuesFromStack := actionStack.TopSubStack(symbolsToPop)
@@ -44,8 +46,8 @@ func Parse() error {
 				semanticValues[i] = valuesFromStack[i-1].Value
 			}
 
-			if rules[n].action != nil {
-				rules[n].action(semanticValues)
+			if p.rules[n].action != nil {
+				p.rules[n].action(semanticValues)
 			}
 
 			for i := 1; i <= symbolsToPop; i++ {
@@ -53,20 +55,20 @@ func Parse() error {
 			}
 
 			t, _ := actionStack.Peek()
-			A := rules[n].leftHandSide
+			A := p.rules[n].leftHandSide
 
-			if parsingTable[t.id][A] == "" {
+			if p.parsingTable[t.id][A] == "" {
 				return errors.New("Syntax error!")
 			}
 
-			gotoSymbol, _ := strconv.Atoi(parsingTable[t.id][A])
+			gotoSymbol, _ := strconv.Atoi(p.parsingTable[t.id][A])
 			actionStack.Push(object{gotoSymbol, semanticValues[0]})
 
-			if parsingError != nil {
-				return parsingError
+			if p.parsingError != nil {
+				return p.parsingError
 			}
 
-		} else if string(parsingTable[s.id][a][0]) == "a" {
+		} else if string(p.parsingTable[s.id][a][0]) == "a" {
 			break
 		}
 

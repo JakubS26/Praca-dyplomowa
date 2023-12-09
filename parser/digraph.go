@@ -12,7 +12,7 @@ func minimum(a, b int) int {
 	return b
 }
 
-func simpleSetUnion(set1 []int, set2 []int) []int {
+func setUnion(set1 []int, set2 []int) []int {
 
 	sort.IntSlice.Sort(set1)
 
@@ -64,7 +64,7 @@ func digraphAlgorithm(predefinedSets map[stateSymbolPair][]int, relation map[sta
 				traverse(y)
 			}
 			N[x] = minimum(N[x], N[y])
-			F[x] = simpleSetUnion(F[x], F[y])
+			F[x] = setUnion(F[x], F[y])
 		}
 
 		if N[x] == d {

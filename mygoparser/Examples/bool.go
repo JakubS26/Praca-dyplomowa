@@ -10,6 +10,8 @@ import (
 
 func main() {
 
+	lexer := lexer.NewLexer()
+
 	lexer.AddTokenDefinition("NEWLINE", `\n`)
 	lexer.AddTokenDefinition("TRUE", `true`)
 	lexer.AddTokenDefinition("FALSE", `false`)
@@ -23,6 +25,8 @@ func main() {
 	lexer.Ignore(`\t`)
 
 	lexer.Init()
+
+	parser := parser.NewParser(lexer)
 
 	parser.AddParserRule("S -> E NEWLINE", func(p []any) { fmt.Printf("Wynik: %v\n\n", p[1]) })
 	parser.AddParserRule("E -> E OR T", func(p []any) { p[0] = p[1].(bool) || p[3].(bool) })

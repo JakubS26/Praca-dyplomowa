@@ -23,7 +23,11 @@ func TestIsNullable1(t *testing.T) {
 	// G -> D D x D D
 	rules = append(rules, createParserRule(7, []int{3, 3, 6, 3, 3}, nil))
 
-	result := findNullable(rules)
+	p := Parser{rules: rules}
+
+	p.findNullable()
+
+	result := p.nullableSymbols
 
 	_, ok := result[2]
 	if !ok {
@@ -55,7 +59,11 @@ func TestIsNullable2(t *testing.T) {
 	// C -> epsilon
 	rules = append(rules, createParserRule(2, []int{}, nil))
 
-	result := findNullable(rules)
+	p := Parser{rules: rules}
+
+	p.findNullable()
+
+	result := p.nullableSymbols
 
 	_, ok := result[0]
 	if !ok {
@@ -88,13 +96,15 @@ func TestReadsRelation(t *testing.T) {
 
 	testTransitions[4] = append(testTransitions[4], automatonTransition{4, 5, 6})
 
-	nullableSybmols := map[int]struct{}{
+	nullableSymbols := map[int]struct{}{
 		4: {},
 		5: {},
 		6: {},
 	}
 
-	readsRelation := generateReadsRelation(testTransitions, nullableSybmols, 0)
+	p := Parser{transitions: testTransitions, nullableSymbols: nullableSymbols}
+
+	readsRelation := p.generateReadsRelation()
 
 	if len(readsRelation) > 3 {
 		t.Fatalf("Too many pairs in reads relation were found")

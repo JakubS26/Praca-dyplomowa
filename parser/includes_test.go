@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"goparser/lexer"
 	"testing"
 )
 
@@ -48,14 +49,20 @@ func TestIncludes(t *testing.T) {
 		id['E']: {},
 	}
 
-	checkNonterminal := func(id int) bool {
-		if id <= 7 && id >= 4 {
-			return true
-		}
-		return false
-	}
+	// checkNonterminal := func(id int) bool {
+	// 	if id <= 7 && id >= 4 {
+	// 		return true
+	// 	}
+	// 	return false
+	// }
 
-	result := generateIncludesRelation(automatonTransitions, nullableSymbols, productions, checkNonterminal)
+	p := NewParser(&lexer.Lexer{})
+
+	p.rules = productions
+	p.transitions = automatonTransitions
+	p.nullableSymbols = nullableSymbols
+
+	result := p.generateIncludesRelation()
 
 	_ = result
 }
