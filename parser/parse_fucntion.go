@@ -7,15 +7,18 @@ import (
 
 func (p *Parser) Parse() error {
 
-	var actionStack Stack[object]
-
-	if !p.tablesGenerated {
-		p.tablesGenerated = true
-		p.generateParser()
+	if p.isInitialized == false {
+		return errors.New("The parser hasn't been initialized!")
 	}
 
+	var actionStack Stack[object]
+
 	//Pobieramy pierwszy token
-	tok, a, _ := p.lexer.NextToken()
+	tok, a, err := p.lexer.NextToken()
+
+	if err != nil {
+		return err
+	}
 
 	//Na stosie stan początkowy
 	actionStack.Push(object{0, nil})
@@ -30,7 +33,11 @@ func (p *Parser) Parse() error {
 
 			t, _ := strconv.Atoi(p.parsingTable[s.id][a][1:])
 			actionStack.Push(object{t, tok.GetMatchedText()})
-			tok, a, _ = p.lexer.NextToken()
+			tok, a, err = p.lexer.NextToken()
+
+			if err != nil {
+				return err
+			}
 
 		} else if string(p.parsingTable[s.id][a][0]) == "r" {
 

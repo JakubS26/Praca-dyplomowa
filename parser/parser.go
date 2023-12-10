@@ -40,6 +40,7 @@ type Parser struct {
 	endOfInputSymbolId      int
 	minimalNonTerminalIndex int
 	numberOfGrammarSymbols  int
+	isInitialized           bool
 }
 
 func NewParser(lexer *lexer.Lexer) *Parser {
@@ -53,6 +54,24 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 		minimalNonTerminalIndex: len(lexer.GetTokenNames()) + 1,
 		numberOfGrammarSymbols:  len(lexer.GetTokenNames()) + 1,
 	}
+}
+
+func (p *Parser) Init() error {
+
+	if p.isInitialized {
+		return nil
+	}
+
+	if len(p.rules) == 0 {
+		return errors.New("The set of grammar rules cannot be empty!")
+	}
+
+	p.generateParser()
+
+	p.isInitialized = true
+	p.tablesGenerated = true
+
+	return nil
 }
 
 // Funkcja tylko do tesów do celów debugowania
@@ -106,7 +125,7 @@ func (p parserRule) getLeftHandSideSymbol() int {
 func checkNonterminalName(s string) bool {
 
 	for _, c := range s {
-		if !(c == '_' || (unicode.IsLetter(c) && unicode.IsUpper(c))) {
+		if !(c == '_' || (unicode.IsLetter(c))) {
 			return false
 		}
 	}
@@ -114,8 +133,6 @@ func checkNonterminalName(s string) bool {
 	return true
 
 }
-
-//var nonTerminalNames map[string]int = make(map[string]int)
 
 func (p *Parser) toParserRule(s string, tokenNames map[string]int, action func([]any), nonTerminalNames map[string]int) (parserRule, error) {
 
@@ -130,7 +147,6 @@ func (p *Parser) toParserRule(s string, tokenNames map[string]int, action func([
 	for _, split := range splitStrings {
 		if split != "" {
 			splitStringsClear = append(splitStringsClear, split)
-			//fmt.Printf("%#v\n", split)
 		}
 	}
 
@@ -142,10 +158,16 @@ func (p *Parser) toParserRule(s string, tokenNames map[string]int, action func([
 		return parserRule{}, errors.New("This is not a valid parser rule.")
 	}
 
+	_, alreadyIsTerminal := tokenNames[splitStringsClear[0]]
+
+	if alreadyIsTerminal {
+		return parserRule{}, errors.New(fmt.Sprintf("Wromg symbol name : %q. This symbol is already a terminal!", splitStringsClear[0]))
+	}
+
 	//Rozpatrujemy najpierw oddzielnie symbol z lewej strony produkcji
 
 	if !checkNonterminalName(splitStringsClear[0]) {
-		return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", splitStringsClear[0]))
+		return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only letters and underscores!", splitStringsClear[0]))
 	} else {
 		id, foundNonTerminal := nonTerminalNames[splitStringsClear[0]]
 
@@ -198,7 +220,7 @@ func (p *Parser) toParserRule(s string, tokenNames map[string]int, action func([
 			rightHandSide = append(rightHandSide, nextFreeId)
 			nextFreeId++
 		} else {
-			return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only capital letters and underscores!", str))
+			return parserRule{}, errors.New(fmt.Sprintf("Wrong nonterminal symbol name : %q. Names of nonterminals can contain only letters and underscores!", str))
 		}
 
 	}
@@ -228,6 +250,10 @@ func (p *Parser) getNumberOfGrammarSymbols() int {
 }
 
 func (p *Parser) AddParserRule(s string, action func([]any)) error {
+
+	if p.isInitialized {
+		return errors.New("Parser has already been initialized!")
+	}
 
 	result, err := p.toParserRule(s, p.lexer.GetTokenNames(), action, p.nonTerminalNames)
 

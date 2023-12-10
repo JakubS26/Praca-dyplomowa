@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestSimpleSetUnion(t *testing.T) {
+func TestSetUnion(t *testing.T) {
 
 	set1 := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	set2 := []int{4, 5, 6, 7, 8, 9, 10, 11, 12, 13}

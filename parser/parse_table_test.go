@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"goparser/lexer"
 	"testing"
 )
@@ -111,24 +110,58 @@ func TestParseTables(t *testing.T) {
 
 	result, _ := p.generateLalrParseTables(lookaheadSets)
 
-	fmt.Print(" ")
+	ok := true
 
-	symNames := []string{"c", "d", "$", "S", "C"}
+	ok = ok && result[0][0] == "s3"
+	ok = ok && result[0][1] == "s4"
+	ok = ok && result[0][2] == ""
+	ok = ok && result[0][3] == "1"
+	ok = ok && result[0][4] == "2"
 
-	_ = result
-	_ = symNames
+	ok = ok && result[1][0] == ""
+	ok = ok && result[1][1] == ""
+	ok = ok && result[1][2] == "a"
+	ok = ok && result[1][3] == ""
+	ok = ok && result[1][4] == ""
 
-	// for i := 0; i < 5; i++ {
-	// 	fmt.Printf("%5.5s", symNames[i])
-	// }
-	// fmt.Println()
+	ok = ok && result[2][0] == "s3"
+	ok = ok && result[2][1] == "s4"
+	ok = ok && result[2][2] == ""
+	ok = ok && result[2][3] == ""
+	ok = ok && result[2][4] == "5"
 
-	// for index, row := range result {
-	// 	fmt.Print(index)
-	// 	for _, action := range row {
-	// 		fmt.Printf("%5.5s", action)
-	// 	}
-	// 	fmt.Println()
-	// }
+	ok = ok && result[3][0] == "s3"
+	ok = ok && result[3][1] == "s4"
+	ok = ok && result[3][2] == ""
+	ok = ok && result[3][3] == ""
+	ok = ok && result[3][4] == "6"
+
+	ok = ok && result[4][0] == "r3"
+	ok = ok && result[4][1] == "r3"
+	ok = ok && result[4][2] == "r3"
+	ok = ok && result[4][3] == ""
+	ok = ok && result[4][4] == ""
+
+	ok = ok && result[5][0] == ""
+	ok = ok && result[5][1] == ""
+	ok = ok && result[5][2] == "r1"
+	ok = ok && result[5][3] == ""
+	ok = ok && result[5][4] == ""
+
+	ok = ok && result[6][0] == "r2"
+	ok = ok && result[6][1] == "r2"
+	ok = ok && result[6][2] == "r2"
+	ok = ok && result[6][3] == ""
+	ok = ok && result[6][4] == ""
+
+	ok = ok && result[7][0] == ""
+	ok = ok && result[7][1] == ""
+	ok = ok && result[7][2] == ""
+	ok = ok && result[7][3] == ""
+	ok = ok && result[7][4] == ""
+
+	if !ok {
+		t.Fatalf("Parse table is not correctly determined!")
+	}
 
 }

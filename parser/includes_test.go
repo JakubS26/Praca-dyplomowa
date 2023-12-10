@@ -49,13 +49,6 @@ func TestIncludes(t *testing.T) {
 		id['E']: {},
 	}
 
-	// checkNonterminal := func(id int) bool {
-	// 	if id <= 7 && id >= 4 {
-	// 		return true
-	// 	}
-	// 	return false
-	// }
-
 	p := NewParser(&lexer.Lexer{})
 
 	p.rules = productions

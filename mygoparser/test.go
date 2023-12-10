@@ -47,6 +47,8 @@ func main() {
 	parser.AddParserRule("F -> NUM", func(p []any) { p[0], _ = strconv.Atoi(p[1].(string)) })
 	parser.AddParserRule("F -> MINUS NUM", func(p []any) { p[0], _ = strconv.Atoi(p[2].(string)); p[0] = p[0].(int) * (-1) })
 
+	parser.Init()
+
 	for true {
 		reader := bufio.NewReader(os.Stdin)
 		line, _ := reader.ReadString('\n')
@@ -60,5 +62,7 @@ func main() {
 			fmt.Print(err, "\n\n")
 		}
 	}
+
+	parser.ExportParseTablesToFile("parse_table.txt")
 
 }

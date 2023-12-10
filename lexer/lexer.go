@@ -43,25 +43,24 @@ func NewLexer() *Lexer {
 	}
 }
 
-// var tokenNames map[string]int = make(map[string]int)
-// var nextTokenId int = 0
-
-// var tokenDefinitions []TokenDefinition
-// var compiledRegexes []*regexp.Regexp
-
-// var ignoreRegexes []string
-// var ignoreCompiledRegexes []*regexp.Regexp
-
-// var fileBuffer []byte
-
-func (l *Lexer) AddTokenDefinition(name, regex string) {
-	l.tokenDefinitions = append(l.tokenDefinitions, TokenDefinition{name, regex})
-	l.tokenNames[name] = l.nextTokenId
-	l.nextTokenId++
+func (l *Lexer) AddTokenDefinition(name, regex string) error {
+	if !l.isInitalized {
+		l.tokenDefinitions = append(l.tokenDefinitions, TokenDefinition{name, regex})
+		l.tokenNames[name] = l.nextTokenId
+		l.nextTokenId++
+		return nil
+	} else {
+		return errors.New("Lexer has already been initialized!")
+	}
 }
 
-func (l *Lexer) Ignore(regex string) {
-	l.ignoreRegexes = append(l.ignoreRegexes, regex)
+func (l *Lexer) Ignore(regex string) error {
+	if !l.isInitalized {
+		l.ignoreRegexes = append(l.ignoreRegexes, regex)
+		return nil
+	} else {
+		return errors.New("Lexer has already been initialized!")
+	}
 }
 
 func (l *Lexer) PrintTokens() {
@@ -96,6 +95,10 @@ func (l *Lexer) TestPrintFile() {
 
 func (l *Lexer) Init() error {
 
+	if l.isInitalized {
+		return nil
+	}
+
 	if len(l.tokenDefinitions) == 0 {
 		return errors.New("The set of tokens cannot be empty!")
 	}
@@ -109,8 +112,8 @@ func (l *Lexer) Init() error {
 		}
 
 		for _, c := range l.tokenDefinitions[i].name {
-			if !(c == '_' || (unicode.IsLetter(c) /*&& unicode.IsUpper(c)*/)) {
-				return errors.New(fmt.Sprintf("Wrong character : %q. Names of tokens can contain only capital letters and underscores!", c))
+			if !(c == '_' || (unicode.IsLetter(c))) {
+				return errors.New(fmt.Sprintf("Wrong character : %q. Names of tokens can contain only letters and underscores!", c))
 			}
 		}
 
@@ -158,6 +161,10 @@ func PrintToken(tok Token) {
 
 func (l *Lexer) NextToken() (Token, int, error) {
 
+	if l.isInitalized == false {
+		return Token{}, 0, errors.New("Lexer hasn't been initialized!")
+	}
+
 	var matchedText string
 	var matchedLoc []int
 
@@ -190,6 +197,5 @@ func (l *Lexer) NextToken() (Token, int, error) {
 		}
 	}
 
-	fmt.Println("The lexer was not able to match given input!")
 	return Token{"", ""}, 0, errors.New("The lexer was not able to match given input!")
 }
