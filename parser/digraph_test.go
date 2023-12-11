@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+	"sort"
 	"testing"
 )
 
@@ -40,6 +42,15 @@ func TestDigraph1(t *testing.T) {
 		{2, 2}: {{4, 4}, {5, 5}},
 	}
 
+	expected := map[stateSymbolPair][]int{
+		{0, 0}: {0, 1, 2, 3, 4, 5},
+		{1, 1}: {1, 3},
+		{2, 2}: {2, 3, 4, 5},
+		{3, 3}: {3},
+		{4, 4}: {3, 4},
+		{5, 5}: {3, 5},
+	}
+
 	minNonTerminalIndex := 0
 	maxNonterminalIndex := 5
 	numberOfStates := 6
@@ -47,6 +58,31 @@ func TestDigraph1(t *testing.T) {
 	result := digraphAlgorithm(predefinedSets, relation,
 		minNonTerminalIndex, maxNonterminalIndex, numberOfStates)
 
-	_ = result
+	for key, value := range result {
+		if key.state != key.symbol && len(value) != 0 {
+			t.Fatalf(fmt.Sprintf("Value for key %v should be empty!", key))
+		}
+	}
+
+	for i := 0; i <= 5; i++ {
+		resultSlice := result[stateSymbolPair{i, i}]
+		sort.Slice(resultSlice, func(i, j int) bool {
+			return resultSlice[i] < resultSlice[j]
+		})
+		expectedSlice := expected[stateSymbolPair{i, i}]
+		sort.Slice(expectedSlice, func(i, j int) bool {
+			return expectedSlice[i] < expectedSlice[j]
+		})
+
+		if len(resultSlice) != len(expectedSlice) {
+			t.Fatalf(fmt.Sprintf("Result set is not correct for %v", stateProductionPair{i, i}))
+		}
+
+		for j := 0; j < len(resultSlice); j++ {
+			if resultSlice[j] != expectedSlice[j] {
+				t.Fatalf(fmt.Sprintf("Result set is not correct for %v", stateProductionPair{i, i}))
+			}
+		}
+	}
 
 }

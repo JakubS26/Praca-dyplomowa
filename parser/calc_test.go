@@ -26,6 +26,8 @@ func TestCalc(t *testing.T) {
 	parser.AddParserRule("F -> L_PAR E R_PAR", nil)
 	parser.AddParserRule("F -> NUM", nil)
 
+	parser.Init()
+
 	properStrings := []string{"3", "3+3", "3+3*3", "(3+3)*3", "4*4*4*4*4*4", "(5)"}
 
 	for _, s := range properStrings {

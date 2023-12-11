@@ -14,7 +14,7 @@ func main() {
 
 	lexer := lexer.NewLexer()
 
-	lexer.AddTokenDefinition("NEWLINE", `\n`)
+	lexer.AddTokenDefinition("NL", `\n`)
 	lexer.AddTokenDefinition("NUM", `[0-9]+`)
 	lexer.AddTokenDefinition("PLUS", `\+`)
 	lexer.AddTokenDefinition("MINUS", `\-`)
@@ -30,7 +30,7 @@ func main() {
 
 	parser := parser.NewParser(lexer)
 
-	parser.AddParserRule("S -> E NEWLINE", func(p []any) { fmt.Printf("Wynik: %d\n\n", p[1]) })
+	parser.AddParserRule("S -> E NL", func(p []any) { fmt.Printf("Wynik: %d\n\n", p[1]) })
 	parser.AddParserRule("E -> E PLUS T", func(p []any) { p[0] = p[1].(int) + p[3].(int) })
 	parser.AddParserRule("E -> E MINUS T", func(p []any) { p[0] = p[1].(int) - p[3].(int) })
 	parser.AddParserRule("E -> T", func(p []any) { p[0] = p[1].(int) })

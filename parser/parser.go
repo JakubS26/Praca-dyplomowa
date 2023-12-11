@@ -66,7 +66,11 @@ func (p *Parser) Init() error {
 		return errors.New("The set of grammar rules cannot be empty!")
 	}
 
-	p.generateParser()
+	err := p.generateParser()
+
+	if err != nil {
+		return err
+	}
 
 	p.isInitialized = true
 	p.tablesGenerated = true

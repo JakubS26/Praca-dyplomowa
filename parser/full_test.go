@@ -20,17 +20,7 @@ func TestFull(t *testing.T) {
 	parser.AddParserRule("C -> c C", nil)
 	parser.AddParserRule("C -> d", nil)
 
-	// parser.generateParser()
-
-	// for _, row := range parser.parsingTable {
-	// 	for _, elem := range row {
-	// 		fmt.Print(elem)
-	// 		for i := 1; i <= 10-len(elem); i++ {
-	// 			fmt.Print(" ")
-	// 		}
-	// 	}
-	// 	fmt.Println()
-	// }
+	parser.Init()
 
 	properStrings := []string{"dd", "cdd", "cccccccdd", "cdcd", "cccdcccd", "cdccccd"}
 

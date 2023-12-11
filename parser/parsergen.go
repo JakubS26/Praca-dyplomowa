@@ -1,17 +1,13 @@
 package parser
 
 import (
-	"reflect"
+	"sort"
 )
 
 // Zgodnie z sugestiami z "Kompilatory. Reguły..." sytuację LR(0) przedstawiamy jako parę liczb,
 // z których pierwsza odnosi się do numeru produkcji, której dotyczy sytuacja, zaś druga
 // oznacza pozycję znacznika (kropki) w tej produkcji. Na przykład pozycja kropki 0 oznacza, że
 // znajduje się ona przed elementem tablcy 0 (na samym początku produkcji).
-
-//var rules []ParserRule
-
-//var minimalNonTerminalIndex = parser.GetMinimalNonTerminalIndex()
 
 func isNonTerminal(index int, minimalNonTerminalIndex int) bool {
 	if index >= minimalNonTerminalIndex {
@@ -50,47 +46,12 @@ func (at automatonTransition) GetSymbol() int {
 	return at.symbol
 }
 
-//var transitions [][]automatonTransition
-//var itemSets []lr0ItemSet
-//var numberOfSymbols int = getNumberOfGrammarSymbols()
-
 func (I lr0Item) isComplete(rules []parserRule) bool {
 	if rules[I.ruleNumber].getRightHandSideLength() == I.markerLocation {
 		return true
 	}
 	return false
 }
-
-// func (I lr0Item) print() {
-
-// 	name := getSymbolName(rules[I.ruleNumber].getLeftHandSideSymbol())
-// 	fmt.Print(name)
-
-// 	fmt.Print(" -> ")
-
-// 	for i := 0; i < rules[I.ruleNumber].getRightHandSideLength(); i++ {
-
-// 		if I.markerLocation == i {
-// 			fmt.Print(" . ")
-// 		}
-
-// 		name = getSymbolName(rules[I.ruleNumber].getRightHandSideSymbol(i))
-// 		fmt.Print(name, " ")
-
-// 	}
-
-// 	if I.isComplete() {
-// 		fmt.Print(" .")
-// 	}
-
-// }
-
-// func print(I lr0ItemSet) {
-// 	for _, item := range I {
-// 		item.print()
-// 		fmt.Println("  ")
-// 	}
-// }
 
 func (p *Parser) closure(I lr0ItemSet) lr0ItemSet {
 
@@ -142,13 +103,45 @@ func (p *Parser) gotoFunction(I lr0ItemSet, symbol int) lr0ItemSet {
 func isElement(I lr0ItemSet, C []lr0ItemSet) (bool, int) {
 
 	for index, element := range C {
-		if reflect.DeepEqual(element, I) {
+
+		if checkEqualLr0ItemSets(element, I) {
 			return true, index
 		}
 	}
 
 	return false, -1
 
+}
+
+func checkEqualLr0ItemSets(I1 lr0ItemSet, I2 lr0ItemSet) bool {
+
+	if len(I1) != len(I2) {
+		return false
+	}
+
+	sort.Slice(I1, func(i, j int) bool {
+		if I1[i].ruleNumber != I1[j].ruleNumber {
+			return I1[i].ruleNumber < I1[j].ruleNumber
+		} else {
+			return I1[i].markerLocation < I1[j].markerLocation
+		}
+	})
+
+	sort.Slice(I2, func(i, j int) bool {
+		if I2[i].ruleNumber != I2[j].ruleNumber {
+			return I2[i].ruleNumber < I2[j].ruleNumber
+		} else {
+			return I2[i].markerLocation < I2[j].markerLocation
+		}
+	})
+
+	for i := 0; i < len(I1); i++ {
+		if I1[i] != I2[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (p *Parser) createLr0ItemSets() {
@@ -185,8 +178,6 @@ func (p *Parser) createLr0ItemSets() {
 
 		}
 	}
-
-	//fmt.Println(C)
 
 	p.lr0Sets = C
 	p.transitions = transitions

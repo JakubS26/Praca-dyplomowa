@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func isElementStateSymbolPair(s stateSymbolPair, setOfPairs []stateSymbolPair) bool {
+	for _, elem := range setOfPairs {
+		if elem == s {
+			return true
+		}
+	}
+	return false
+}
+
 func TestIncludes(t *testing.T) {
 
 	id := map[byte]int{
@@ -57,5 +66,46 @@ func TestIncludes(t *testing.T) {
 
 	result := p.generateIncludesRelation()
 
-	_ = result
+	//Sprawdzenie wyniku dla pary (4, C)
+
+	if len(result[stateSymbolPair{4, id['C']}]) != 1 {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{4, id['C']})
+	}
+
+	if !isElementStateSymbolPair(stateSymbolPair{0, id['A']}, result[stateSymbolPair{4, id['C']}]) {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{4, id['C']})
+	}
+
+	//Sprawdzenie wyniku dla pary (5, C)
+
+	if len(result[stateSymbolPair{5, id['C']}]) != 3 {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, id['C']})
+	}
+
+	if !isElementStateSymbolPair(stateSymbolPair{0, id['A']}, result[stateSymbolPair{5, id['C']}]) {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, id['C']})
+	}
+
+	if !isElementStateSymbolPair(stateSymbolPair{1, id['A']}, result[stateSymbolPair{5, id['C']}]) {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, id['C']})
+	}
+
+	if !isElementStateSymbolPair(stateSymbolPair{2, id['A']}, result[stateSymbolPair{5, id['C']}]) {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, id['C']})
+	}
+
+	//Sprawdzenie wyniku dla pary (5, E)
+
+	if len(result[stateSymbolPair{5, 7}]) != 1 {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, 7})
+	}
+
+	if !isElementStateSymbolPair(stateSymbolPair{0, id['A']}, result[stateSymbolPair{5, id['E']}]) {
+		t.Fatalf("Includes relation is not correctly determined for pair %v!", stateSymbolPair{5, id['E']})
+	}
+
+	if len(result) != 3 {
+		t.Fatalf("Includes relation is not correctly determined!")
+	}
+
 }

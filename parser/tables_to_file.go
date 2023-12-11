@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -18,6 +19,12 @@ func addPadding(s string, finalLength int) string {
 }
 
 func (p *Parser) ExportParseTablesToFile(filename string) error {
+
+	if p.isInitialized == false {
+		return errors.New("Parser has not been initialized!")
+	}
+
+	os.Remove(filename)
 
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {

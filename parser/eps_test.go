@@ -25,6 +25,8 @@ func TestEps(t *testing.T) {
 	parser.AddParserRule("C -> c C", nil)
 	parser.AddParserRule("C -> epsilon", nil)
 
+	parser.Init()
+
 	properStrings := []string{"", "aabbcc", "abc", "aaaa", "ab", "a", "b", "bc", "c"}
 
 	for _, s := range properStrings {

@@ -1,6 +1,6 @@
 package parser
 
-func (p *Parser) generateParser() {
+func (p *Parser) generateParser() error {
 
 	p.createLr0ItemSets()
 
@@ -38,10 +38,10 @@ func (p *Parser) generateParser() {
 
 	// Za pomocą zbiorów podglądów (LA) wyznaczamy tabele parsowania
 
-	result, _ := p.generateLalrParseTables(lookaheadSets)
-
-	//fmt.Println(result)
+	result, err := p.generateLalrParseTables(lookaheadSets)
 
 	p.parsingTable = result
+
+	return err
 
 }

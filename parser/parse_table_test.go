@@ -165,3 +165,31 @@ func TestParseTables(t *testing.T) {
 	}
 
 }
+
+func TestNotLalr(t *testing.T) {
+
+	l := lexer.NewLexer()
+
+	l.AddTokenDefinition("a", `a`)
+	l.AddTokenDefinition("b", `b`)
+	l.AddTokenDefinition("c", `c`)
+	l.AddTokenDefinition("d", `d`)
+	l.AddTokenDefinition("e", `e`)
+
+	l.Init()
+
+	p := NewParser(l)
+
+	p.AddParserRule("S -> a A d", nil)
+	p.AddParserRule("S -> b B d", nil)
+	p.AddParserRule("S -> a B e", nil)
+	p.AddParserRule("S -> b A e", nil)
+	p.AddParserRule("A -> c", nil)
+	p.AddParserRule("B -> c", nil)
+
+	err := p.Init()
+
+	if err == nil || err.Error() != "This grammar is not LALR(1)!" {
+		t.Fatalf("Parser shouldn't create a table for this grammar (not LALR)!")
+	}
+}
