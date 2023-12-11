@@ -63,6 +63,4 @@ func main() {
 		}
 	}
 
-	parser.ExportParseTablesToFile("parse_table.txt")
-
 }

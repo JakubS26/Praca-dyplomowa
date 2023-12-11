@@ -37,7 +37,7 @@ func (p *Parser) ExportParseTablesToFile(filename string) error {
 		maxLength = max(maxLength, len(p.getSymbolName(i)))
 	}
 
-	padding := maxLength + 1
+	padding := max(maxLength+1, 4)
 
 	maxNumberLength := len(strconv.Itoa(len(p.transitions) - 1))
 
